@@ -1,4 +1,4 @@
-from duckduckgo_search import DDGS
+from ddgs import DDGS
 from playwright.sync_api import sync_playwright
 import time
 import random
