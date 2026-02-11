@@ -133,6 +133,10 @@ docker-compose up --build
 
 **Linux/macOS:**
 ```bash
+# 1. Clone Repository
+git clone https://github.com/chadi0x/TheBigBrother
+cd TheBigBrother
+
 # 2. Create Virtual Environment
 python3 -m venv venv
 source venv/bin/activate
@@ -147,6 +151,10 @@ python -m uvicorn the_big_brother.gui.main:app --port 8000
 
 **Windows:**
 ```bash
+# 1. Clone Repository
+git clone https://github.com/chadi0x/TheBigBrother
+cd TheBigBrother
+
 # 2. Install Dependencies
 pip install -r requirements.txt
 playwright install chromium
