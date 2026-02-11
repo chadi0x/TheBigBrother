@@ -116,7 +116,7 @@
 
 ```bash
 # 1. Clone Repository
-git clone https://github.com/chadi0x/the-big-brother.git
+git clone https://github.com/chadi0x/TheBigBrother
 cd the-big-brother
 
 # 2. Launch System
@@ -152,7 +152,7 @@ pip install -r requirements.txt
 playwright install chromium
 
 # 2. Launch
-python -m uvicorn the_big_brother.gui.main:app --port 8000
+python -m uvicorn TheBigBrother.gui.main:app --port 8000
 ```
 
 ---
