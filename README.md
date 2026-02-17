@@ -37,6 +37,33 @@
 
 ---
 
+
+<div align="center">
+
+# 💎 Support the Development
+
+If this project gave you value, consider supporting the work behind it.
+
+</div>
+
+---
+
+
+<div align="center">
+
+### ☕ Back the Project
+
+[![Support on Ko-fi](https://img.shields.io/badge/Support-Ko--fi-000000?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/chadi0x)
+
+<br>
+
+**Thanks to anyone who supports — it truly means a lot.**
+
+</div>
+
+---
+
+
 ## 🎯 Overview
 
 **The Big Brother V3.0** is a weaponized intelligence gathering platform designed for Red Teams and Elite Investigators. Built on a high-velocity asynchronous Python backend with an immersive 3D surveillance interface.
