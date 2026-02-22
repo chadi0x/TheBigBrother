@@ -5,12 +5,7 @@ from pyvis.network import Network
 import tempfile
 import os
 import dns.resolver
-
-COMMON_PORTS = {
-    21: "FTP", 22: "SSH", 23: "Telnet", 25: "SMTP", 53: "DNS", 80: "HTTP",
-    110: "POP3", 143: "IMAP", 443: "HTTPS", 3306: "MySQL", 3389: "RDP",
-    5432: "PostgreSQL", 8080: "HTTP-Alt"
-}
+from the_big_brother.modules import port_scan
 
 async def check_port(ip, port):
     conn = asyncio.open_connection(ip, port)
@@ -94,25 +89,22 @@ async def scan_target(domain: str):
         return {"error": "Could not resolve domain"}
         
     # Parallel Tasks
-    # 1. Port Scan
-    port_tasks = [check_port(results["ip"], p) for p in COMMON_PORTS.keys()]
-    
-    # 2. GeoIP (Sync but fast enough, or thread it)
+    # 1. GeoIP (Sync but fast enough, or thread it)
     results["geoip"] = await asyncio.to_thread(get_geoip, results["ip"])
     
-    # 3. Whois
+    # 2. Whois
     results["whois"] = await asyncio.to_thread(get_rdap_whois, domain)
     
-    # 4. DNS
+    # 3. DNS
     results["dns"] = await asyncio.to_thread(get_dns_records, domain)
 
-    # 5. Execute Port Scan
-    port_results = await asyncio.gather(*port_tasks)
-    
-    for port, is_open in port_results:
-        if is_open:
-            results["ports"].append({"port": port, "service": COMMON_PORTS[port]})
-            
+    # 4. Port Scan
+    p = port_scan.PortScan()
+    port_results = p.scanning(results["ip"])
+
+    for portResult in sorted(port_results, key=lambda x: x["port"]):
+        results["ports"].append({"port": portResult["port"], "service": portResult["service"]})
+
     # 6. Subdomains (crt.sh)
     try:
         url = f"https://crt.sh/?q=%.{domain}&output=json"

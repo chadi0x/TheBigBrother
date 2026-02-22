@@ -17,3 +17,4 @@ networkx>=3.0.0
 Pillow>=9.0.0
 python-whois>=0.9.0
 python-multipart>=0.0.6
+scapy>=2.7.0
