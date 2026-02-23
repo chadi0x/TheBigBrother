@@ -100,7 +100,7 @@ async def scan_target(domain: str):
 
     # 4. Port Scan
     p = port_scan.PortScan()
-    port_results = p.scanning(results["ip"])
+    port_results = await asyncio.to_thread(p.scanning, results["ip"])
 
     for portResult in sorted(port_results, key=lambda x: x["port"]):
         results["ports"].append({"port": portResult["port"], "service": portResult["service"]})
