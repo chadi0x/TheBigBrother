@@ -1,0 +1,2717 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE BIG BROTHER V3.0</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        @import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
+        /* Link generated 3D tower CSS */
+        @import url('3.css?v=6.0.0');
+
+        /* 3D TOWER OF CARDS CSS ADAPTATIONS */
+        .wireframe_input {
+            position: fixed;
+            top: -100%;
+            left: -100%;
+            visibility: hidden;
+        }
+
+        .towerOuter {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            perspective: 700px;
+            perspective-origin: center 25%;
+            z-index: -10;
+            pointer-events: none;
+            opacity: 0.2;
+            /* Subtle background */
+            transform: scale(0.6);
+        }
+
+        .tower {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 50px;
+            transform-style: preserve-3d;
+            animation: towerRotate 60s infinite linear;
+        }
+
+        @keyframes towerRotate {
+            from {
+                transform: translateX(-50%) rotateY(0deg);
+            }
+
+            to {
+                transform: translateX(-50%) rotateY(360deg);
+            }
+        }
+
+        .card {
+            position: absolute;
+            width: 50px;
+            height: 70px;
+            background-image: url('https://assets.codepen.io/1948355/cardsheet01.jpg');
+            background-size: 650px 280px;
+            border-radius: 8px;
+            transform-style: preserve-3d;
+            box-shadow: 0 0 10px #0007 inset;
+            backface-visibility: hidden;
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50px;
+            height: 70px;
+            transform: rotateY(180deg);
+            backface-visibility: hidden;
+            background-image: url('https://assets.codepen.io/1948355/cardback01.jpg');
+            background-size: 50px 70px;
+            border: 1px solid #fff7;
+            border-radius: 8px;
+        }
+
+        /* ... Generated CSS linked via 3.css ... */
+
+
+        :root {
+            --bg-base: #050505;
+            --bg-surface: #0a0a0a;
+            --bg-surface-hover: #141414;
+            --text-primary: #e0e0e0;
+            --text-secondary: #888888;
+            --accent-primary: #ff003c;
+            --accent-secondary: #00f0ff;
+            --success: #00ff41;
+            --error: #ff003c;
+            --warning: #fce205;
+            --glass-bg: rgba(10, 10, 10, 0.85);
+            --glass-border: rgba(255, 0, 60, 0.25);
+        }
+
+        /* Glitch Animation */
+        @keyframes glitch {
+            2%, 64% { transform: translate(2px, 0) skew(0deg); }
+            4%, 60% { transform: translate(-2px, 0) skew(0deg); }
+            62% { transform: translate(0, 0) skew(5deg); }
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(255, 0, 60, 0.1), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(0, 240, 255, 0.1), transparent 25%);
+        }
+
+        /* Layout Structure */
+        .app-container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            z-index: 10;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-right: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 30px 20px;
+            border-bottom: 1px solid var(--glass-border);
+            text-align: center;
+        }
+
+        .sidebar-header h1 {
+            margin: 0;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1.6rem;
+            letter-spacing: 2px;
+            color: var(--accent-primary);
+            text-shadow: 0 0 10px var(--accent-primary);
+            animation: glitch 1s linear infinite;
+        }
+
+        .sidebar-header .subtitle {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-primary) transparent;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: rgba(15, 23, 42, 0.4);
+        }
+
+        .topbar {
+            height: 70px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            justify-content: space-between;
+        }
+
+        .topbar h2 {
+            margin: 0;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            letter-spacing: 1px;
+        }
+        
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            scroll-behavior: smooth;
+        }
+
+        /* HUD Panels (Cards) */
+        .hud-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 24px;
+            margin-bottom: 24px;
+            border-radius: 12px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .hud-panel:hover {
+            border-color: rgba(255,255,255,0.2);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Images */
+        .images-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            min-height: 200px;
+            perspective: 1000px;
+        }
+
+        .image-wrapper {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            transform-style: preserve-3d;
+            transition: 0.5s;
+        }
+
+        .image-wrapper:hover {
+            transform: scale(1.1) rotateY(10deg);
+            z-index: 100;
+        }
+
+        .captured-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border: 2px solid var(--accent-color);
+            background: #000;
+            box-shadow: 0 0 20px var(--accent-color);
+        }
+
+        .dl-btn {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: var(--accent-color);
+            color: #000;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            padding: 5px;
+            font-weight: bold;
+        }
+
+        /* Inputs & Buttons */
+        .search-area {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        input {
+            flex: 1;
+            min-width: 200px;
+            padding: 14px 20px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+            background: rgba(15, 23, 42, 0.9);
+        }
+
+        button.glitch-btn {
+            padding: 14px 28px;
+            background: transparent;
+            color: var(--accent-secondary);
+            border: 1px solid var(--accent-secondary);
+            border-radius: 4px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2) inset;
+            letter-spacing: 1px;
+        }
+
+        button.glitch-btn:hover {
+            transform: translateY(-2px);
+            background: var(--accent-secondary);
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
+        }
+
+        /* Secondary Controls */
+        .controls {
+            display: flex;
+            justify-content: flex-start;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            align-items: center;
+            padding-top: 16px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .ctrl-btn {
+            background: rgba(15, 23, 42, 0.6);
+            color: #fff;
+            border: 1px solid var(--glass-border);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            transition: 0.2s;
+            height: 48px;
+        }
+
+        .ctrl-btn.stop {
+            color: var(--error);
+            border-color: rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .ctrl-btn.stop:hover {
+            background: var(--error);
+            color: #fff;
+        }
+
+        .ctrl-btn.download {
+            color: var(--success);
+            border-color: rgba(16, 185, 129, 0.3);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .ctrl-btn.download:hover {
+            background: var(--success);
+            color: #fff;
+        }
+
+        /* Dorks Section */
+        .dork-wrapper {
+            display: flex;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            overflow: hidden;
+            height: 48px;
+        }
+
+        .dork-select {
+            background: transparent;
+            color: var(--text-primary);
+            border: none;
+            padding: 0 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            cursor: pointer;
+        }
+        
+        .dork-select option {
+            background: var(--bg-surface);
+            color: var(--text-primary);
+        }
+
+        .dork-btn {
+            background: var(--accent-secondary);
+            color: #fff;
+            border: none;
+            padding: 0 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            height: 100%;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .dork-btn:hover {
+            background: #0891b2;
+        }
+
+        .status {
+            font-size: 1.1rem;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 24px;
+            padding: 16px;
+            border-radius: 8px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--glass-border);
+        }
+
+        /* Result Cards */
+        .results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .result-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--glass-border);
+            border-left: 4px solid var(--accent-primary);
+            border-radius: 8px;
+            padding: 20px;
+            transition: 0.3s;
+            position: relative;
+        }
+
+        .result-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px -8px rgba(0, 0, 0, 0.5);
+            border-color: rgba(255,255,255,0.2);
+            background: rgba(30, 41, 59, 0.9);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 12px;
+            margin-bottom: 12px;
+        }
+
+        .site-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+        }
+
+        .link {
+            color: var(--accent-secondary);
+            text-decoration: none;
+            word-break: break-all;
+            font-size: 0.9rem;
+            display: block;
+            margin-bottom: 10px;
+            transition: 0.2s;
+        }
+        
+        .link:hover {
+            color: #fff;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge.verified {
+            color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        /* Deep Search Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 200;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #001100;
+            border: 2px solid var(--accent-color);
+            padding: 20px;
+            width: 80%;
+            max-width: 1000px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 0 50px var(--accent-color);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: var(--accent-color);
+            text-shadow: 0 0 10px var(--accent-color);
+        }
+
+        .deep-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .engine-col {
+            border: 1px solid #333;
+            padding: 10px;
+        }
+
+        .engine-title {
+            color: #fff;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--accent-color);
+        }
+
+        .deep-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            margin: 5px;
+            border: 1px solid #444;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .deep-img:hover {
+            transform: scale(1.5);
+            border-color: var(--accent-color);
+            z-index: 10;
+            position: relative;
+        }
+
+        /* Deep Search FX */
+        .scan-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: none;
+            z-index: 50;
+            background:
+                linear-gradient(rgba(0, 255, 65, 0.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 65, 0.2) 1px, transparent 1px);
+            background-size: 20px 20px;
+            animation: grid-scroll 2s linear infinite;
+        }
+
+        @keyframes grid-scroll {
+            from {
+                background-position: 0 0;
+            }
+
+            to {
+                background-position: 0 100%;
+            }
+        }
+
+        .reticle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            border: 2px solid var(--accent-color);
+            display: none;
+            z-index: 51;
+            box-shadow: 0 0 10px var(--accent-color), inset 0 0 20px var(--accent-color);
+        }
+
+        .reticle::before,
+        .reticle::after {
+            content: '';
+            position: absolute;
+            background: var(--accent-color);
+        }
+
+        /* Crosshairs */
+        .reticle::before {
+            top: 50%;
+            left: -10px;
+            width: 20px;
+            height: 2px;
+            box-shadow: calc(100% + 180px) 0 0 var(--accent-color);
+        }
+
+        .reticle::after {
+            top: -10px;
+            left: 50%;
+            width: 2px;
+            height: 20px;
+            box-shadow: 0 calc(100% + 180px) 0 var(--accent-color);
+        }
+
+        .scanning-text {
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            z-index: 52;
+            font-weight: bold;
+        }
+
+        /* Matrix Rain in Modal */
+        .matrix-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.1;
+            font-family: monospace;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .btn-deep {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            color: var(--accent-color);
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+            opacity: 0;
+            transition: 0.3s;
+            font-family: 'Share Tech Mono';
+            letter-spacing: 2px;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .image-wrapper:hover .btn-deep {
+            opacity: 1;
+        }
+
+        /* Target Analysis in Modal */
+        .target-analysis {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            position: relative;
+            border-bottom: 1px solid var(--accent-color);
+            padding-bottom: 20px;
+        }
+
+        .target-wrapper {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            border: 2px solid var(--accent-color);
+            background: #000;
+            overflow: hidden;
+        }
+
+        .target-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.8;
+        }
+
+        /* FX in Modal */
+        .target-scan {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(0, 255, 65, 0.4) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 65, 0.4) 1px, transparent 1px);
+            background-size: 20px 20px;
+            animation: grid-scroll 1s linear infinite;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .target-reticle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            border: 2px solid var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-color);
+            z-index: 11;
+        }
+
+        .target-reticle::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: -10%;
+            width: 120%;
+            height: 2px;
+            background: var(--accent-color);
+        }
+
+        .target-reticle::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: -10%;
+            height: 120%;
+            width: 2px;
+            background: var(--accent-color);
+        }
+
+        .btn-deep:hover {
+            background: var(--accent-color);
+            color: #000;
+        }
+
+        /* Sidebar Tabs */
+        .tab-btn {
+            background: transparent;
+            color: var(--text-secondary);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--accent-primary);
+            font-weight: 600;
+            box-shadow: inset 3px 0 0 var(--accent-primary);
+        }
+
+        .nav-premium-btn {
+            background: linear-gradient(135deg, #ff003c, #800020);
+            color: #fff;
+            border: 1px solid #ff003c;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(255,0,60,0.4);
+            transition: 0.3s;
+            animation: pulse-border 2s infinite;
+        }
+
+        .nav-premium-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(255,0,60,0.8);
+            background: linear-gradient(135deg, #ff003c, #ff3366);
+        }
+
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 10px rgba(255,0,60,0.4); }
+            50% { box-shadow: 0 0 20px rgba(255,0,60,0.8); }
+            100% { box-shadow: 0 0 10px rgba(255,0,60,0.4); }
+        }
+
+        /* Tab Content Area */
+        .tab-content {
+            display: none;
+            opacity: 0;
+            animation: elegantFade 0.4s ease forwards;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes elegantFade {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Topbar user chip */
+        .user-chip {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--glass-border);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>THE BIG BROTHER <span style="color:var(--accent-secondary)">V4</span></h1>
+                <div class="subtitle">QUANTUM OSINT ENGINE</div>
+            </div>
+            <nav class="sidebar-nav" id="main-nav">
+                <button class="tab-btn active" onclick="switchTab('tab-profiler', 'TARGET PROFILER')"><span>🔍</span> PROFILER</button>
+                <button class="tab-btn" onclick="switchTab('tab-phantom', 'PHANTOM IDENTITY')"><span>👻</span> PHANTOM ID</button>
+                <button class="tab-btn" onclick="switchTab('tab-breach', 'BREACH VAULT')"><span>🔓</span> BREACH VAULT</button>
+                <button class="tab-btn" onclick="switchTab('tab-footprint', 'DIGITAL FOOTPRINT')"><span>👣</span> FOOTPRINT</button>
+                <button class="tab-btn" onclick="switchTab('tab-sigint', 'SIGINT SWEEP')"><span>📡</span> SIGINT SWEEP</button>
+                <button class="tab-btn" onclick="switchTab('tab-shadowmap', 'SHADOW MAP')"><span>🗺️</span> SHADOW MAP</button>
+                <button class="tab-btn" onclick="switchTab('tab-network', 'NETWORK MAPPER')"><span>🕸️</span> NET SCAN</button>
+                <button class="tab-btn" onclick="switchTab('tab-darkwatch', 'DARK WEB WATCH')"><span>🧅</span> DARK WEB</button>
+                <button class="tab-btn" onclick="switchTab('tab-crypto', 'CRYPTO ANALYZER')"><span>🪙</span> CRYPTO</button>
+                <button class="tab-btn" onclick="switchTab('tab-ssl', 'SSL SENTINEL')"><span>🔒</span> SSL</button>
+                <button class="tab-btn" onclick="switchTab('tab-exif', 'EXIF X-RAY')"><span>📸</span> EXIF</button>
+                <button class="tab-btn" onclick="switchTab('tab-dorks', 'DORK STUDIO')"><span>🛠️</span> DORKS</button>
+                <button class="tab-btn" onclick="switchTab('tab-geoint', 'GEOINT SPY')"><span>🛰️</span> GEOINT</button>
+                <button class="tab-btn" onclick="switchTab('tab-flight', 'SKY RADAR')"><span>✈️</span> SKY RADAR</button>
+            </nav>
+            <div style="padding: 20px; text-align: center; border-top: 1px solid var(--glass-border);">
+                <button class="nav-premium-btn" onclick="switchTab('tab-premium', 'PREMIUM CATALOG')">
+                    🔥 PREMIUM PROJECTS
+                </button>
+                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 15px;">
+                    SYTEM ARCHITECT: <a href="https://github.com/chadi0x" target="_blank" style="color:var(--accent-primary); text-decoration:none;">CHADI0X</a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <header class="topbar">
+                <h2 id="active-module-title">TARGET PROFILER</h2>
+                <div class="user-chip">
+                    <span style="display:inline-block; width:8px; height:8px; background:var(--success); border-radius:50%; box-shadow: 0 0 8px var(--success);"></span>
+                    SYSTEM ONLINE
+                </div>
+            </header>
+            
+            <div class="content-area">
+
+        <!-- TAB: PREMIUM PROJECTS (Hidden) -->
+        <div id="tab-premium" class="tab-content">
+            <div class="hud-panel" style="text-align:center; border-color:var(--accent-primary);">
+                <h2 style="color:var(--accent-primary); font-family:'Orbitron'; margin:0 0 10px 0;">PREMIUM PROJECT CATALOG</h2>
+                <div style="color:var(--text-secondary); font-size:0.9rem;">UNLOCK ADVANCED CAPABILITIES WITH THESE EXCLUSIVE MODULES.</div>
+            </div>
+
+            <div class="results" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); align-items: stretch;">
+                <!-- Card 1 -->
+                <div class="result-card" style="border-left-color:#ff003c; display:flex; flex-direction:column;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:15px;">
+                        <h3 style="margin:0; color:#fff;">TheBigBrother God-EYE</h3>
+                        <span class="status-badge" style="background:rgba(255,0,60,0.2); color:#ff003c; border-color:#ff003c;">PREMIUM</span>
+                    </div>
+                    <div style="color:#aaa; font-size:0.9rem; margin-bottom:20px; flex-grow:1;">The ultimate evolution of OSINT operations. Harness direct access to proprietary servers and global data APIs to extract unprecedented deep-level intelligence on individuals and corporations.</div>
+                    <button class="glitch-btn" onclick="window.open('https://t.me/hisoka0morow', '_blank')" style="width:100%; display:flex; justify-content:center; align-items:center;">GET IT</button>
+                </div>
+                <!-- Card 2 -->
+                <div class="result-card" style="border-left-color:#00f0ff; display:flex; flex-direction:column;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:15px;">
+                        <h3 style="margin:0; color:#fff;">X GodMode</h3>
+                        <span class="status-badge" style="background:rgba(0,240,255,0.2); color:#00f0ff; border-color:#00f0ff;">AUTOMATION</span>
+                    </div>
+                    <div style="color:#aaa; font-size:0.9rem; margin-bottom:20px; flex-grow:1;">Total domination of the Twitter ecosystem. Deploy fully automated botnets to farm engagement across niches. Auto-publish, RT, like, and comment to seamlessly engineer market sentiment.</div>
+                    <button class="glitch-btn" onclick="window.open('https://t.me/hisoka0morow', '_blank')" style="width:100%; display:flex; justify-content:center; align-items:center;">GET IT</button>
+                </div>
+                <!-- Card 3 -->
+                <div class="result-card" style="border-left-color:#fce205; display:flex; flex-direction:column;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:15px;">
+                        <h3 style="margin:0; color:#fff;">Amplifior</h3>
+                        <span class="status-badge" style="background:rgba(252,226,5,0.2); color:#fce205; border-color:#fce205;">TIKTOK BOT</span>
+                    </div>
+                    <div style="color:#aaa; font-size:0.9rem; margin-bottom:20px; flex-grow:1;">Hands-free TikTok empire builder. Select your target niche and let Amplifior autonomously download, edit, and orchestrate daily posts. Farm explosive organic growth while you sleep.</div>
+                    <button class="glitch-btn" onclick="window.open('https://t.me/hisoka0morow', '_blank')" style="width:100%; display:flex; justify-content:center; align-items:center;">GET IT</button>
+                </div>
+                <!-- Card 4 -->
+                <div class="result-card" style="border-left-color:#00ff41; display:flex; flex-direction:column;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:15px;">
+                        <h3 style="margin:0; color:#fff;">Psychopath</h3>
+                        <span class="status-badge" style="background:rgba(0,255,65,0.2); color:#00ff41; border-color:#00ff41;">PHISHING</span>
+                    </div>
+                    <div style="color:#aaa; font-size:0.9rem; margin-bottom:20px; flex-grow:1;">The definitive weaponized phishing suite. Deploy heavily engineered social engineering campaigns across 100+ platforms instantly. Includes advanced SMTP spoofing and AI-driven conversational bots.</div>
+                    <button class="glitch-btn" onclick="window.open('https://t.me/hisoka0morow', '_blank')" style="width:100%; display:flex; justify-content:center; align-items:center;">GET IT</button>
+                </div>
+                <!-- Card 5 -->
+                <div class="result-card" style="border-left-color:#ff00ea; display:flex; flex-direction:column;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:15px;">
+                        <h3 style="margin:0; color:#fff;">Custom Project</h3>
+                        <span class="status-badge" style="background:rgba(255,0,234,0.2); color:#ff00ea; border-color:#ff00ea;">DEVELOPMENT</span>
+                    </div>
+                    <div style="color:#aaa; font-size:0.9rem; margin-bottom:20px; flex-grow:1;">Need a bespoke offensive or defensive solution? I maintain an arsenal of over 200 operational tools. If a capability doesn't exist yet, we engineer it from scratch. Nothing is impossible.</div>
+                    <button class="glitch-btn" onclick="window.open('https://t.me/hisoka0morow', '_blank')" style="width:100%; display:flex; justify-content:center; align-items:center;">GET IT</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 1: TARGET PROFILER (Original Content) -->
+        <div id="tab-profiler" class="tab-content active">
+            <div id="images-container" class="images-container"></div>
+
+            <div class="hud-panel">
+                <div class="search-area">
+                    <input type="text" id="username" placeholder="ENTER TARGET IDENTIFIER..."
+                        onkeydown="if(event.key==='Enter') startScan()">
+                    <button onclick="startScan()" id="btn-scan" class="glitch-btn">INITIATE</button>
+                </div>
+
+                <div class="controls">
+                    <button id="btn-stop" class="ctrl-btn stop" onclick="stopScan()" disabled>[X] ABORT
+                        SEQUENCE</button>
+                    <button id="btn-download" class="ctrl-btn download" onclick="downloadReport()" disabled>[V] EXPORT
+                        DATA</button>
+
+                    <div class="dork-wrapper">
+                        <select id="dork-select" class="dork-select">
+                            <option value="linkedin">LINKEDIN</option>
+                            <option value="instagram">INSTAGRAM</option>
+                            <option value="twitter">TWITTER</option>
+                            <option value="facebook">FACEBOOK</option>
+                            <option value="tiktok">TIKTOK</option>
+                            <option value="pinterest">PINTEREST</option>
+                            <option value="github">GITHUB</option>
+                            <option value="gitlab">GITLAB</option>
+                            <option value="stackoverflow">STACKOVERFLOW</option>
+                            <option value="pastebin">PASTEBIN</option>
+                            <option value="reddit">REDDIT</option>
+                            <option value="pdf">FILETYPE: PDF</option>
+                            <option value="doc">FILETYPE: DOC</option>
+                            <option value="txt">FILETYPE: TXT</option>
+                            <option value="intext">INTEXT SCAN</option>
+                            <option value="intitle">INTITLE SCAN</option>
+                            <option value="inurl">INURL SCAN</option>
+                            <option value="password">BREACH CHECK</option>
+                            <option value="email">EMAIL CHECK</option>
+                            <option value="phone">PHONE CHECK</option>
+                        </select>
+                        <button class="dork-btn" onclick="executeDork()">DEPLOY DORK ></button>
+                    </div>
+                </div>
+
+                <div id="status" class="status" style="color: #fff;">SYSTEM STANDBY.</div>
+            </div>
+
+            <div id="results" class="results"></div>
+        </div>
+
+        <!-- TAB: PHANTOM ID -->
+        <div id="tab-phantom" class="tab-content">
+            <div class="hud-panel">
+                <div class="search-area">
+                    <input type="text" id="phantom-input" placeholder="ENTER TARGET USERNAME" onkeydown="if(event.key==='Enter') scanPhantom()">
+                    <button onclick="scanPhantom()" class="glitch-btn" style="border-color: var(--accent-color); color: var(--accent-neon);">HUNT</button>
+                </div>
+                <!-- Risk Gauge -->
+                <div style="margin-top:15px; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 4px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                        <span>EXPOSURE SCORE</span>
+                        <span id="phantom-score-text">STANDBY</span>
+                    </div>
+                    <div style="width:100%; height:12px; background:#111; border-radius:6px; overflow:hidden;">
+                        <div id="phantom-score-bar" style="width:0%; height:100%; background:var(--accent-color); transition: width 1s ease-out;"></div>
+                    </div>
+                </div>
+                <div id="phantom-status" class="status" style="color: var(--text-color); margin-top:15px;">WAITING FOR TARGET.</div>
+            </div>
+
+            <div id="phantom-results" class="results" style="display: block;">
+                <!-- Avatar & Categories Wrapper -->
+                <div id="phantom-meta" style="display:none; gap:20px; align-items:center; margin-bottom: 20px;">
+                    <img id="phantom-avatar" src="" style="width:80px; height:80px; border-radius:50%; border:2px solid var(--accent-neon); box-shadow:0 0 15px var(--accent-neon);">
+                    <div id="phantom-cats" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
+                </div>
+                <!-- Cards Grid -->
+                <div id="phantom-grid" class="results" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));"></div>
+            </div>
+        </div>
+
+        <!-- TAB: BREACH VAULT -->
+        <div id="tab-breach" class="tab-content">
+            <div class="hud-panel">
+                <div class="search-area">
+                    <input type="text" id="breach-input" placeholder="ENTER EMAIL OR PASSWORD" onkeydown="if(event.key==='Enter') scanBreach()">
+                    <select id="breach-type" class="dork-select" style="width:120px; margin-left:10px;">
+                        <option value="email">EMAIL</option>
+                        <option value="password">PASSWORD (HASHED)</option>
+                    </select>
+                    <button onclick="scanBreach()" class="glitch-btn" style="border-color: #ff4444; color: #ff4444;">AUDIT</button>
+                </div>
+                <div id="breach-status" class="status" style="color: #ff4444; margin-top:10px;">READY TO CHECK LEAKS.</div>
+            </div>
+            
+            <div id="breach-summary" style="margin-bottom:20px;"></div>
+            <div id="breach-results" class="results"></div>
+            <!-- Paste Dumps specific block -->
+            <div id="paste-dump-results" style="margin-top: 20px; display: grid; gap: 10px;"></div>
+        </div>
+
+        <!-- TAB 2: DIGITAL FOOTPRINT (Original, maintained for legacy checks) -->
+        <div id="tab-footprint" class="tab-content">
+            <div class="hud-panel">
+                <div class="search-area">
+                    <input type="text" id="footprint-input" placeholder="ENTER EMAIL OR PHONE (e.g. +1415...)">
+                    <button onclick="scanFootprint()" class="glitch-btn">TRACK</button>
+                    <select id="footprint-type" class="dork-select" style="width:100px; margin-left:10px;">
+                        <option value="email">EMAIL</option>
+                        <option value="phone">PHONE</option>
+                    </select>
+                </div>
+                <div id="footprint-status" class="status" style="color: #fff;">READY TO TRACK.</div>
+            </div>
+
+            <div id="footprint-results" class="results" style="display: block;">
+                <!-- Results will appear here as list/cards -->
+            </div>
+        </div>
+
+        <!-- TAB 3: NETWORK MAPPER -->
+        <div id="tab-network" class="tab-content">
+            <div class="hud-panel">
+                <div class="search-area">
+                    <input type="text" id="network-input" placeholder="ENTER DOMAIN (e.g. example.com)">
+                    <button onclick="scanNetwork()" class="glitch-btn">MAP NETWORK</button>
+                </div>
+                <div id="network-status" class="status" style="color: #fff;">READY TO SCAN.</div>
+            </div>
+
+            <div id="network-results" class="results" style="display: block; min-height: 500px;">
+                <!-- Graph will appear here -->
+                <div id="network-graph"
+                    style="width: 100%; height: 500px; border: 1px solid var(--accent-color); background: #000;"></div>
+                <div id="network-ports" style="margin-top: 20px; color: var(--text-color);"></div>
+            </div>
+        </div>
+
+        <!-- TAB 4: DARK WATCH -->
+        <div id="tab-darkwatch" class="tab-content">
+            <div class="hud-panel">
+                <div class="search-area">
+                    <input type="text" id="dark-input" placeholder="ENTER KEYWORD (e.g. leak, database)">
+                    <button onclick="scanDarkWeb()" class="glitch-btn"
+                        style="border-color: #ff0000; color: #ff0000;">SEARCH DARKWEB</button>
+                </div>
+                <div id="dark-status" class="status" style="color: #ff0000;">CAUTION: ONION NETWORK GATEWAY.</div>
+            </div>
+
+            <div id="dark-results" class="results" style="display: grid; gap: 10px;">
+                <!-- Onion links -->
+            </div>
+        </div>
+
+        <!-- TAB 5: CRYPTO ANALYZER -->
+        <div id="tab-crypto" class="tab-content">
+            <div class="hud-panel">
+                <div class="search-area">
+                    <input type="text" id="crypto-input" placeholder="ENTER WALLET ADDRESS">
+                    <select id="crypto-type" class="dork-select" style="width:120px; margin-left:10px;">
+                        <option value="btc">BITCOIN</option>
+                        <option value="eth">ETHEREUM</option>
+                    </select>
+                    <button onclick="scanCrypto()" class="glitch-btn"
+                        style="border-color: #ffd700; color: #ffd700;">ANALYZE</button>
+                </div>
+                <div id="crypto-status" class="status" style="color: #ffd700;">BLOCKCHAIN LEDGER CONNECTION ESTABLISHED.
+                </div>
+            </div>
+            <div id="crypto-results" class="results"></div>
+        </div>
+
+        <!-- TAB 6: SSL SENTINEL -->
+        <div id="tab-ssl" class="tab-content">
+            <div class="hud-panel">
+                <div class="search-area">
+                    <input type="text" id="ssl-input" placeholder="ENTER DOMAIN (e.g. secure.com)">
+                    <button onclick="scanSSL()" class="glitch-btn"
+                        style="border-color: #00ffff; color: #00ffff;">INSPECT SSL</button>
+                </div>
+                <div id="ssl-status" class="status" style="color: #00ffff;">TLS HANDSHAKE PROTOCOL READY.</div>
+            </div>
+            <div id="ssl-results" class="results"></div>
+        </div>
+
+        <!-- TAB: SIGINT SWEEP -->
+        <div id="tab-sigint" class="tab-content">
+            <div class="hud-panel">
+                <div class="search-area">
+                    <input type="text" id="sigint-input" placeholder="ENTER BRAND, PERSON, OR KEYWORD" onkeydown="if(event.key==='Enter') scanSigint()">
+                    <button onclick="scanSigint()" class="glitch-btn" style="border-color: #00ffaa; color: #00ffaa;">SWEEP</button>
+                </div>
+                <!-- Sentiment Summary -->
+                <div id="sigint-sentiment" style="display:flex; justify-content:center; gap:30px; margin-top:15px; padding:10px; background:rgba(0,0,0,0.3);">
+                    <div style="color:var(--success)">POSITIVE: <span id="sig-pos">0</span></div>
+                    <div style="color:var(--warning)">NEUTRAL: <span id="sig-neu">0</span></div>
+                    <div style="color:var(--error)">NEGATIVE: <span id="sig-neg">0</span></div>
+                </div>
+                <div id="sigint-status" class="status" style="color: #00ffaa; margin-top:10px;">AWAITING DIRECTIVES.</div>
+            </div>
+            <div id="sigint-results" class="results" style="display: flex; flex-direction:column; gap:15px;"></div>
+        </div>
+
+        <!-- TAB: SHADOW MAP -->
+        <div id="tab-shadowmap" class="tab-content">
+            <div class="hud-panel">
+                <div class="search-area">
+                    <input type="text" id="shadow-input" placeholder="ENTER IP OR DOMAIN TO INVESTIGATE" onkeydown="if(event.key==='Enter') scanShadow()">
+                    <button onclick="scanShadow()" class="glitch-btn" style="border-color: #ff8800; color: #ff8800;">TRACE</button>
+                </div>
+                <div id="shadow-status" class="status" style="color: #ff8800; margin-top:10px;">REPUTATION ENGINE NOMINAL.</div>
+            </div>
+            
+            <!-- Shadow Map Dashboard Layout -->
+            <div id="shadow-dashboard" style="display:none; grid-template-columns: 1fr 2fr; gap: 20px;">
+                <!-- Left: Threat Score Gauge -->
+                <div class="result-card" style="text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                    <div style="font-size: 1.2rem; color: #aaa; margin-bottom: 20px;">THREAT SCORE</div>
+                    <div id="shadow-score" style="font-size: 5rem; font-weight:900; line-height:1; font-family:'Orbitron';">0</div>
+                    <div id="shadow-level" style="font-size: 1.5rem; font-weight:bold; margin-top: 10px; padding: 5px 15px; border-radius:20px; color:#000;">CLEAN</div>
+                    
+                    <div id="shadow-factors" style="margin-top: 20px; font-size: 0.8rem; color: #ff4444; width:100%; text-align:left;"></div>
+                </div>
+
+                <!-- Right: Module Data Grids -->
+                <div style="display: flex; flex-direction:column; gap: 20px;">
+                    <div class="result-card" id="shadow-abuse"></div>
+                    <div class="result-card" id="shadow-vt"></div>
+                    <div class="result-card" id="shadow-geo"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 7: EXIF X-RAY -->
+        <div id="tab-exif" class="tab-content">
+            <div class="hud-panel">
+                <div class="search-area">
+                    <input type="text" id="exif-input" placeholder="ENTER IMAGE URL (http://...)">
+                    <span style="color:#666; margin:0 10px;">OR</span>
+                    <input type="file" id="exif-file"
+                        style="width:200px; color:var(--accent-color); border:1px solid var(--accent-color);">
+                </div>
+                <div style="margin-top:10px; text-align:right;">
+                    <button onclick="analyzeExif()" class="glitch-btn"
+                        style="border-color: var(--accent-color); color: var(--accent-color);">EXTRACT DATA
+                        (URL)</button>
+                    <button onclick="analyzeExifFile()" class="glitch-btn"
+                        style="border-color: var(--accent-color); color: var(--accent-color);">EXTRACT DATA
+                        (FILE)</button>
+                </div>
+                <div id="exif-status" class="status" style="color: var(--accent-color);">WAITING FOR VISUAL DATA.</div>
+            </div>
+            <div id="exif-results" class="results"></div>
+        </div>
+
+        <!-- TAB 8: DORK STUDIO -->
+        <div id="tab-dorks" class="tab-content">
+            <div class="hud-panel">
+                <div class="search-area">
+                    <input type="text" id="dork-target" placeholder="TARGET KEYWORD (e.g. Tesla)">
+                    <input type="text" id="dork-domain" placeholder="DOMAIN (Optional)">
+                    <button onclick="generateDorks()" class="glitch-btn"
+                        style="border-color: #ffffff; color: #ffffff;">GENERATE DORKS</button>
+                </div>
+                <div id="dork-status" class="status" style="color: #ffffff;">HACKING QUERIES READY.</div>
+            </div>
+            <div id="dork-results" class="results" style="grid-template-columns: 1fr;"></div>
+        </div>
+
+        <!-- TAB 9: GEOINT SPY -->
+        <div id="tab-geoint" class="tab-content">
+            <div class="hud-panel">
+                <div class="search-area">
+                    <input type="text" id="geo-lat" placeholder="LATITUDE (e.g. 40.7128)">
+                    <input type="text" id="geo-lon" placeholder="LONGITUDE (e.g. -74.0060)">
+                    <button onclick="runGeoint()" class="glitch-btn" style="border-color: #00ff00; color: #00ff00;">SAT
+                        RECON</button>
+                </div>
+                <div id="geo-status" class="status" style="color: #00ff00;">SATELLITE UPLINK STANDBY.</div>
+            </div>
+            <div id="geo-results" class="results"></div>
+        </div>
+
+        <!-- TAB 10: SKY WATCHER -->
+        <div id="tab-flight" class="tab-content" style="height: calc(100vh - 150px); min-height: 600px;">
+            <div style="display: flex; flex-direction: column; height: 100%;">
+                <div class="hud-panel" style="margin-bottom:10px; flex-shrink:0;">
+                <div class="search-area" style="flex-wrap: wrap; gap:10px;">
+                    <select id="sky-country" class="dork-select" onchange="updateSkyRegion()" style="width:150px;">
+                        <option value="">SELECT REGION...</option>
+                        <option value="uk">UNITED KINGDOM</option>
+                        <option value="usa_east">USA (EAST)</option>
+                        <option value="usa_west">USA (WEST)</option>
+                        <option value="france">FRANCE</option>
+                        <option value="germany">GERMANY</option>
+                        <option value="russia">RUSSIA (MOSCOW)</option>
+                        <option value="china">CHINA (EAST)</option>
+                        <option value="japan">JAPAN</option>
+                        <option value="dubai">UAE (DUBAI)</option>
+                    </select>
+                    <input type="text" id="sky-lat" placeholder="LAT" style="width:100px;">
+                    <input type="text" id="sky-lon" placeholder="LON" style="width:100px;">
+                    <input type="text" id="sky-rad" value="100" placeholder="RAD (KM)" style="width:80px;">
+                    <button onclick="scanSky()" class="glitch-btn" style="border-color: #0099ff; color: #0099ff;">RADAR
+                        SCAN</button>
+                    <!-- Auto-locate button -->
+                    <button
+                        onclick="if(navigator.geolocation) navigator.geolocation.getCurrentPosition(p=>{document.getElementById('sky-lat').value=p.coords.latitude; document.getElementById('sky-lon').value=p.coords.longitude;})"
+                        class="glitch-btn"
+                        style="border-color: #0099ff; color: #0099ff; font-size:0.8rem; padding:0 10px;">📍 MY
+                        LOC</button>
+                </div>
+                <div id="sky-status" class="status" style="color: #0099ff;">OPENSKY NETWORK LINKED.</div>
+            </div>
+
+            <!-- Dashboard Layout -->
+            <div style="display: flex; gap: 15px; flex: 1; min-height: 0;">
+                <!-- Map Container (Left, 70%) -->
+                <div id="sky-map"
+                    style="flex: 3; height: 100%; background:#111; border:1px solid #0099ff;"></div>
+
+                <!-- Live Feed (Right, 30%) -->
+                <div
+                    style="flex: 1; height: 100%; overflow-y: auto; border: 1px solid #0099ff; background: rgba(0, 20, 40, 0.8); padding: 10px;">
+                    <h3
+                        style="color:#0099ff; text-align:center; border-bottom:1px solid #0099ff; padding-bottom:10px; margin-top:0;">
+                        LIVE TRAFFIC</h3>
+                    <div id="sky-results" class="results" style="display:block; grid-template-columns: 1fr;">
+                        <div style="text-align:center; opacity:0.7;">NO DATA FEED</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deep Search Modal -->
+        <div id="deepModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeDeepModal()">&times;</span>
+                <h2>DEEP VISUAL INTEL</h2>
+
+                <div class="target-analysis">
+                    <div class="target-wrapper">
+                        <div class="target-scan"></div>
+                        <div class="target-reticle"></div>
+                        <img id="deep-target-img" src="" style="width:100%; height:100%;">
+                    </div>
+                    <div
+                        style="color:var(--accent-color); font-size:0.8rem; margin-top:5px; animation:blink 1s infinite">
+                        SCANNING TARGET...</div>
+                </div>
+
+                <div id="deep-status" class="status-bar" style="margin-bottom: 20px;">READY</div>
+                <div class="deep-grid">
+                    <div class="engine-col">
+                        <div class="engine-title">GOOGLE IMAGES</div>
+                        <div id="google-results"></div>
+                    </div>
+                    <div class="engine-col">
+                        <div class="engine-title">BING VISUAL</div>
+                        <div id="bing-results"></div>
+                    </div>
+                    <div class="engine-col">
+                        <div class="engine-title">YANDEX VISION</div>
+                        <div id="yandex-results"></div>
+                    </div>
+                    <div class="engine-col">
+                        <div class="engine-title">TINEYE TRACKER</div>
+                        <div id="tineye-results"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let jobId = null;
+        let pollInterval = null;
+        let currentUsername = "";
+
+        function switchTab(tabId, title) {
+            // Hide all contents
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            // Remove active class from buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+            // Show selected content
+            document.getElementById(tabId).classList.add('active');
+            
+            // Activate button 
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            }
+            
+            // Update Active Module Title in Topbar
+            if (title) {
+                document.getElementById('active-module-title').innerText = title;
+            }
+        }
+
+        async function startScan() {
+            const username = document.getElementById('username').value.trim();
+            if (!username) return;
+            currentUsername = username;
+
+            // Reset UI
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('images-container').innerHTML = '<div style="color:var(--accent-color); padding:20px; text-align:center; width:100%;">[ SEARCHING FOR BIOMETRIC DATA... ]</div>';
+            document.getElementById('status').innerHTML = 'INITIALIZING NEURAL LINK...';
+            document.getElementById('status').style.color = '#fff';
+
+            document.getElementById('btn-scan').disabled = true;
+            document.getElementById('btn-stop').disabled = false;
+            document.getElementById('btn-download').disabled = true;
+            document.getElementById('username').disabled = true;
+
+            try {
+                const res = await fetch('/api/scan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username })
+                });
+                const data = await res.json();
+                jobId = data.job_id;
+
+                if (pollInterval) clearInterval(pollInterval);
+                pollInterval = setInterval(poll, 1500);
+            } catch (e) {
+                console.error(e);
+                alert("SYSTEM FAILURE: CONNECTION REFUSED");
+                resetState();
+            }
+        }
+
+        async function stopScan() {
+            if (!jobId) return;
+            try {
+                await fetch(`/api/stop/${jobId}`, { method: 'POST' });
+                document.getElementById('status').innerText = "ABORTING SEQUENCE...";
+                document.getElementById('status').style.color = 'var(--error)';
+            } catch (e) { console.error(e); }
+        }
+
+        function downloadReport() {
+            if (!jobId) return;
+            window.location.href = `/api/download/${jobId}`;
+        }
+
+        function executeDork() {
+            const u = document.getElementById('username').value.trim() || currentUsername;
+            if (!u) return alert("ENTER TARGET IDENTIFIER FIRST");
+
+            const type = document.getElementById('dork-select').value;
+            let query = "";
+
+            switch (type) {
+                case 'linkedin': query = `site:linkedin.com "${u}"`; break;
+                case 'instagram': query = `site:instagram.com "${u}"`; break;
+                case 'twitter': query = `site:twitter.com "${u}"`; break;
+                case 'facebook': query = `site:facebook.com "${u}"`; break;
+                case 'tiktok': query = `site:tiktok.com "${u}"`; break;
+                case 'pinterest': query = `site:pinterest.com "${u}"`; break;
+                case 'github': query = `site:github.com "${u}"`; break;
+                case 'gitlab': query = `site:gitlab.com "${u}"`; break;
+                case 'stackoverflow': query = `site:stackoverflow.com "${u}"`; break;
+                case 'pastebin': query = `site:pastebin.com "${u}"`; break;
+                case 'reddit': query = `site:reddit.com "${u}"`; break;
+                case 'pdf': query = `filetype:pdf "${u}"`; break;
+                case 'doc': query = `filetype:doc "${u}"`; break;
+                case 'txt': query = `filetype:txt "${u}"`; break;
+                case 'intext': query = `intext:"${u}"`; break;
+                case 'intitle': query = `intitle:"${u}"`; break;
+                case 'inurl': query = `inurl:"${u}"`; break;
+                case 'password': query = `"${u}" "password"`; break;
+                case 'email': query = `"${u}" email`; break;
+                case 'phone': query = `"${u}" phone`; break;
+            }
+
+            if (query) window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+        }
+
+        function downloadImage(url) {
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `target_${currentUsername}.jpg`;
+            a.target = '_blank';
+            a.click();
+        }
+
+        async function poll() {
+            if (!jobId) return;
+
+            try {
+                const res = await fetch(`/api/results/${jobId}`);
+                const data = await res.json();
+
+                renderImages(data.images || []);
+                renderResults(data.results);
+
+                let statusText = "";
+                let color = "#fff";
+
+                if (data.status === 'running') { statusText = "SCANNING GLOBAL NETWORKS..."; color = "var(--accent-color)"; }
+                else if (data.status === 'validating') { statusText = "VERIFYING TARGET VULNERABILITIES [HEADLESS]..."; color = "var(--warning)"; }
+                else if (data.status === 'stopped') { statusText = "SEQUENCE ABORTED BY USER."; color = "var(--error)"; }
+                else if (data.status === 'completed') { statusText = "TARGET ACQUISITION COMPLETE."; color = "var(--success)"; }
+                else if (data.status === 'error') { statusText = "CRITICAL SYSTEM FAILURE."; color = "var(--error)"; }
+
+                const statEl = document.getElementById('status');
+                statEl.innerText = statusText;
+                statEl.style.color = color;
+
+                if (['completed', 'error', 'stopped'].includes(data.status)) {
+                    clearInterval(pollInterval);
+                    resetState(true);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function renderImages(images) {
+            const container = document.getElementById('images-container');
+            // Allow update if we have images and they haven't been rendered yet
+            if (images.length > 0 && container.children.length !== images.length) {
+                container.innerHTML = images.map(src => `
+                    <div class="image-wrapper" onclick="triggerDeepSearch('${src}', this)">
+                        <img src="${src}" class="captured-image" onerror="this.parentElement.style.display='none'">
+                        <button class="btn-deep">DEEP SEARCH</button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        async function triggerDeepSearch(url, wrapper) {
+            // Set Target Image in Modal
+            document.getElementById('deep-target-img').src = url;
+
+            // Show Scanner Overlay
+            document.querySelector('.target-scan').style.display = 'block';
+
+            // Open Modal
+            const modal = document.getElementById('deepModal');
+            modal.style.display = 'flex';
+            document.getElementById('deep-status').innerHTML = "DEPLOYING MULTI-VECTOR VISUAL SEARCH PROTOCOLS...<br><span style='font-size:0.8rem; color:#888'>TARGET: [ GOOGLE ] + [ BING ] + [ YANDEX ] + [ TINEYE ]</span>";
+
+            document.getElementById('google-results').innerHTML = '<div style="color:#00ff41; animation: blink 1s infinite;">[ ESTABLISHING UPLINK... ]</div>';
+            document.getElementById('bing-results').innerHTML = '<div style="color:#00ff41; animation: blink 1s infinite;">[ ESTABLISHING UPLINK... ]</div>';
+            document.getElementById('yandex-results').innerHTML = '<div style="color:#00ff41; animation: blink 1s infinite;">[ ESTABLISHING UPLINK... ]</div>';
+            document.getElementById('tineye-results').innerHTML = '<div style="color:#00ff41; animation: blink 1s infinite;">[ ESTABLISHING UPLINK... ]</div>';
+
+            try {
+                const res = await fetch('/api/deep-search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image_url: url })
+                });
+                const data = await res.json();
+
+                // Stop Scanner Overlay to indicate completion
+                document.querySelector('.target-scan').style.display = 'none';
+
+                document.getElementById('deep-status').innerText = "TARGET VISUAL MATCHES ACQUIRED.";
+
+                renderDeepResults('google-results', data.google);
+                renderDeepResults('bing-results', data.bing);
+                renderDeepResults('yandex-results', data.yandex);
+                renderDeepResults('tineye-results', data.tineye);
+
+            } catch (e) {
+                console.error(e);
+                document.getElementById('deep-status').innerText = "VISUAL SEARCH FAILURE: CONNECTION LOST.";
+                document.querySelector('.target-scan').style.display = 'none';
+            }
+        }
+
+        function renderDeepResults(divId, images) {
+            const container = document.getElementById(divId);
+            if (!images || images.length === 0) {
+                container.innerHTML = '<div style="color:#444">NO MATCHES FOUND</div>';
+                return;
+            }
+            container.innerHTML = images.map(src => `<img src="${src}" class="deep-img" onclick="window.open('${src}')">`).join('');
+        }
+
+        function closeDeepModal() {
+            document.getElementById('deepModal').style.display = 'none';
+        }
+
+        function renderResults(results) {
+            const container = document.getElementById('results');
+            // Sort: Verified first
+            const sorted = [...results].sort((a, b) => {
+                const rank = s => {
+                    if (s === 'Verified') return 0;
+                    if (s === 'Checking...') return 1;
+                    if (s === 'Pending') return 2;
+                    return 3;
+                }
+                return rank(a.validation) - rank(b.validation);
+            });
+
+            container.innerHTML = sorted.map(r => `
+                <div class="result-card">
+                    <div class="result-header">
+                        <span class="site-name">${r.site}</span>
+                        ${renderBadge(r)}
+                    </div>
+                    <a href="${r.url}" target="_blank" class="link">${r.url}</a>
+                    ${r.page_title ? `<div class="meta-info">TITLE: ${r.page_title}</div>` : ''}
+                    ${r.reason ? `<div class="meta-info" style="color:var(--error)">ERR: ${r.reason}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function renderBadge(res) {
+            if (res.validation === 'Pending') return '<span class="status-badge">PENDING</span>';
+            if (res.validation === 'Checking...') return '<span class="status-badge check">CHECKING</span>';
+            if (res.validation === 'Verified') return '<span class="status-badge verified">VERIFIED</span>';
+            if (res.validation === 'False Positive') return '<span class="status-badge false">FALSE+</span>';
+            return '';
+        }
+
+        function resetState(finished = false) {
+            document.getElementById('btn-scan').disabled = false;
+            document.getElementById('btn-stop').disabled = true;
+            document.getElementById('btn-download').disabled = !finished;
+            document.getElementById('username').disabled = false;
+        }
+
+        async function scanFootprint() {
+            const query = document.getElementById('footprint-input').value.trim();
+            const type = document.getElementById('footprint-type').value;
+
+            if (!query) return;
+
+            document.getElementById('footprint-status').innerText = "SCANNING DIGITAL TRACE...";
+            document.getElementById('footprint-results').innerHTML = '<div style="text-align:center; padding:20px;">ACCESSING DATABASES...</div>';
+
+            try {
+                const res = await fetch('/api/footprint', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, type })
+                });
+                const data = await res.json();
+
+                if (data.error) {
+                    document.getElementById('footprint-results').innerHTML = `<div class="result-card" style="border-color:var(--error); text-align:center;">ERROR: ${data.error}</div>`;
+                } else if (type === "phone") {
+                    // Detailed Phone Data
+                    const p = data;
+                    document.getElementById('footprint-results').innerHTML = `
+                    <div class="result-card" style="border-color: #00ff41;">
+                        <h3 style="color:#00ff41">PHONE INTELLIGENCE</h3>
+                        <p><strong>VALID NUMBER:</strong> ${p.valid}</p>
+                        <p><strong>FORMAT:</strong> ${p.number}</p>
+                        <p><strong>COUNTRY:</strong> ${p.country}</p>
+                        <p><strong>CARRIER:</strong> ${p.carrier}</p>
+                        <p><strong>LINE TYPE:</strong> ${p.line_type}</p>
+                        <p><strong>TIMEZONES:</strong> ${p.timezones.join(', ')}</p>
+                    </div>`;
+                    document.getElementById('footprint-status').innerText = "PHONE TRACE COMPLETE.";
+                } else { // Email results
+                    let contentHtml = "";
+                    if (data.found_on.length > 0) {
+                        contentHtml += `<div class="result-card" style="border-color:#00ff41;">
+                            <h3 style="color:#00ff41; border-bottom:1px solid #005500;">DIGITAL FOOTPRINT DETECTED</h3>
+                            <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap:10px; margin-top:10px;">`;
+
+                        data.found_on.forEach(s => {
+                            contentHtml += `<div style="background:#003300; padding:10px; border:1px solid #00ff41; font-size:0.9rem; text-align:center;">${s}</div>`;
+                        });
+                        contentHtml += `</div></div>`;
+
+                        // MX Status Card
+                        const mxColor = data.valid_mx ? "#00ff41" : "red";
+                        contentHtml += `<div class="result-card" style="border-color:${mxColor}; margin-top:10px;">
+                            <h3 style="color:${mxColor};">MX RECORDS STATUS</h3>
+                            <div style="font-size:1.2rem;">${data.valid_mx ? "VALID MAIL SERVER" : "INVALID / UNREACHABLE"}</div>
+                            <div style="font-size:0.8rem; color:#888;">${data.mx_records.length} SERVERS FOUND</div>
+                        </div>`;
+
+                        document.getElementById('footprint-results').innerHTML = contentHtml;
+                        document.getElementById('footprint-status').innerText = `EMAIL FOUND ON ${data.found_on.length} PLATFORMS.`;
+                    } else {
+                        document.getElementById('footprint-results').innerHTML = `
+                         <div class="result-card" style="border-color:gray; text-align:center;">
+                            <h3 style="color:gray">NO PUBLIC TRACE</h3>
+                            <div>TARGET EMAIL APPEARS CLEAN ON SCANNED PLATFORMS.</div>
+                            <div style="margin-top:10px; font-size:0.9rem;">MX VALIDITY: ${data.valid_mx ? "TRUE" : "FALSE"}</div>
+                         </div>`;
+                    }
+                }
+
+            } catch (e) {
+                console.error(e);
+                document.getElementById('footprint-status').innerText = "ERROR EXECUTING TRACE.";
+            }
+        }
+        async function scanNetwork() {
+            const domain = document.getElementById('network-input').value.trim();
+            if (!domain) return;
+
+            document.getElementById('network-status').innerText = "MAPPING TOPOLOGY...";
+            document.getElementById('network-graph').innerHTML = '<div style="text-align:center; padding:100px;">ESTABLISHING CONNECTIONS...</div>';
+            document.getElementById('network-ports').innerHTML = ''; // Clear previous
+
+            try {
+                const res = await fetch('/api/network/scan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ domain })
+                });
+                const data = await res.json();
+
+                if (data.error) {
+                    document.getElementById('network-status').innerText = "ERROR: " + data.error;
+                    return;
+                }
+
+                if (data.map_html) {
+                    const blob = new Blob([data.map_html], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    document.getElementById('network-graph').innerHTML = `<iframe src="${url}" style="width:100%; height:100%; border:none;"></iframe>`;
+                }
+
+                // Render Ports & Intel
+                let intelHtml = `<div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:20px;">`;
+
+                // Column 1: Ports
+                intelHtml += `<div class="result-card" style="border-color:var(--accent-color);">
+                    <h3 style="color:var(--accent-color); border-bottom:1px solid var(--accent-color)">OPEN PORTS</h3>
+                    <div style="margin-top:10px;">`;
+                if (data.ports.length > 0) {
+                    data.ports.forEach(p => {
+                        intelHtml += `<div style="margin-bottom:5px; padding:5px; background:rgba(0,255,65,0.1); border-left:2px solid var(--accent-color);">
+                            <span style="color:var(--accent-color); font-weight:bold;">${p.port}</span> <span style="color:#fff;">${p.service}</span>
+                        </div>`;
+                    });
+                } else {
+                    intelHtml += `<div style="color:#666;">NO OPEN PORTS DETECTED</div>`;
+                }
+                intelHtml += "</div></div>";
+
+                // Column 2: Geo / Whois
+                intelHtml += `<div class="result-card" style="border-color:var(--accent-color);">
+                    <h3 style="color:var(--accent-color); border-bottom:1px solid var(--accent-color)">GEO / WHOIS</h3>
+                    <div style="font-size:0.9rem; margin-top:10px;">`;
+                if (data.geoip && data.geoip.country) {
+                    intelHtml += `<div style="margin-bottom:5px;"><strong>LOC:</strong> ${data.geoip.country} (${data.geoip.countryCode})</div>`;
+                    intelHtml += `<div style="margin-bottom:5px;"><strong>ISP:</strong> ${data.geoip.isp}</div>`;
+                    intelHtml += `<div style="margin-bottom:5px;"><strong>ORG:</strong> ${data.geoip.org}</div>`;
+                } else {
+                    intelHtml += `<div>[GEO DATA UNAVAILABLE]</div>`;
+                }
+                intelHtml += `<div style="margin:10px 0; border-top:1px dashed #333;"></div>`;
+                if (data.whois && data.whois.registrar) {
+                    intelHtml += `<div style="margin-bottom:5px;"><strong>REG:</strong> ${data.whois.registrar}</div>`;
+                    intelHtml += `<div style="margin-bottom:5px;"><strong>DATE:</strong> ${data.whois.creation_date}</div>`;
+                } else {
+                    intelHtml += `<div>[WHOIS REDACTED/UNAVAILABLE]</div>`;
+                }
+                intelHtml += "</div></div>";
+
+                // Column 3: DNS
+                intelHtml += `<div class="result-card" style="border-color:var(--accent-color);">
+                    <h3 style="color:var(--accent-color); border-bottom:1px solid var(--accent-color)">DNS RECORDS</h3>
+                    <div style="font-size:0.9rem; margin-top:10px;">`;
+                if (data.dns) {
+                    if (data.dns.MX && data.dns.MX.length) intelHtml += `<div style="margin-bottom:5px;"><span style="color:#888;">MX:</span> ${data.dns.MX[0]}</div>`;
+                    if (data.dns.NS && data.dns.NS.length) intelHtml += `<div style="margin-bottom:5px;"><span style="color:#888;">NS:</span> ${data.dns.NS[0]}</div>`;
+                    if (data.dns.A && data.dns.A.length) intelHtml += `<div style="margin-bottom:5px;"><span style="color:#888;">A:</span> ${data.dns.A.join(', ')}</div>`;
+                    if (data.dns.TXT && data.dns.TXT.length) intelHtml += `<div style="margin-bottom:5px;"><span style="color:#888;">TXT:</span> ${data.dns.TXT.length} RECORDS</div>`;
+                }
+                intelHtml += "</div></div></div>";
+
+                document.getElementById('network-ports').innerHTML = intelHtml;
+                document.getElementById('network-status').innerText = "SCAN COMPLETE.";
+
+            } catch (e) {
+                console.error(e);
+                document.getElementById('network-status').innerText = "NETWORK ERROR.";
+            }
+        }
+
+        async function scanDarkWeb() {
+            const query = document.getElementById('dark-input').value.trim();
+            if (!query) return;
+
+            document.getElementById('dark-status').innerText = "ROUTING THROUGH TOR GATEWAYS...";
+            document.getElementById('dark-results').innerHTML = '<div style="color:#ffcc00; text-align:center;">DECYPHERING...</div>';
+
+            try {
+                const res = await fetch('/api/dark/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+                const data = await res.json();
+
+                if (data.error) {
+                    document.getElementById('dark-results').innerHTML = `<div style="color:red">ERROR: ${data.error}</div>`;
+                    return;
+                }
+
+                let html = "";
+                data.results.forEach(item => {
+                    const isRansom = item.title.includes("Ransomware");
+                    const badgeColor = isRansom ? "#ff00ff" : "#ff0000";
+                    const badgeText = isRansom ? "LEAK" : "ONION";
+
+                    html += `
+                    <div class="result-card" style="border-color: ${badgeColor};">
+                        <div class="result-header">
+                            <span class="site-name" style="color:${badgeColor}; font-size:0.9rem;">${item.title}</span>
+                            <span class="status-badge" style="border-color:${badgeColor}; color:${badgeColor};">${badgeText}</span>
+                        </div>
+                        <div style="font-size:0.8rem; color:#888; margin-bottom:5px;">${item.date}</div>
+                        <div style="font-size:0.8rem; margin-bottom:10px;">${item.snippet}</div>
+                        <a href="${item.link}" target="_blank" class="link" style="color:#ffcc00;">${item.link}</a>
+                    </div>`;
+                });
+
+                if (data.results.length === 0) html = "<div style='text-align:center;'>NO HIDDEN SERVICES FOUND.</div>";
+
+                document.getElementById('dark-results').innerHTML = html;
+                document.getElementById('dark-status').innerText = `FOUND ${data.count} ONION SERVICES.`;
+
+            } catch (e) {
+                console.error(e);
+                document.getElementById('dark-status').innerText = "CONNECTION FAILURE.";
+            }
+        }
+
+        async function scanCrypto() {
+            const address = document.getElementById('crypto-input').value.trim();
+            const coin = document.getElementById('crypto-type').value;
+            if (!address) return;
+
+            document.getElementById('crypto-status').innerText = "SYNCING WITH DISTRIBUTED LEDGER...";
+            document.getElementById('crypto-results').innerHTML = '<div style="text-align:center; padding:50px;">FETCHING BLOCKS...</div>';
+
+            try {
+                const res = await fetch('/api/crypto/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ address, coin })
+                });
+                const data = await res.json();
+
+                if (data.error) {
+                    document.getElementById('crypto-status').innerText = "ERROR: " + data.error;
+                    document.getElementById('crypto-results').innerHTML = "";
+                    return;
+                }
+
+                document.getElementById('crypto-status').innerText = `ANALYSIS COMPLETE: ${data.coin.toUpperCase()}`;
+
+                const html = `
+                <div class="result-card" style="border-color: #ffd700; max-width:800px; margin:0 auto;">
+                    <div class="result-header">
+                        <span class="site-name" style="color:#ffd700;">${data.coin.toUpperCase()} WALLET</span>
+                        <span class="status-badge verified">ACTIVE</span>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-top:20px;">
+                        <div>
+                            <div style="font-size:0.8rem; color:#888;">BALANCE</div>
+                            <div style="font-size:2rem; font-weight:bold;">${data.balance}</div>
+                        </div>
+                        <div>
+                             <div style="font-size:0.8rem; color:#888;">TOTAL RECEIVED</div>
+                            <div style="font-size:2rem; font-weight:bold;">${data.total_received}</div>
+                        </div>
+                        <div>
+                             <div style="font-size:0.8rem; color:#888;">TRANSACTIONS</div>
+                            <div style="font-size:1.5rem;">${data.tx_count}</div>
+                        </div>
+                        <div>
+                             <div style="font-size:0.8rem; color:#888;">LAST ACTIVITY</div>
+                            <div style="font-size:1.5rem;">${data.last_seen}</div>
+                        </div>
+                    </div>
+                     <div style="margin-top:20px; word-break:break-all; font-size:0.9rem; color:#666;">
+                        ADDR: ${data.address}
+                     </div>
+                </div>
+                `;
+                document.getElementById('crypto-results').innerHTML = html;
+
+            } catch (e) {
+                document.getElementById('crypto-status').innerText = "LEDGER SYNC FAILED.";
+            }
+        }
+
+        async function scanSSL() {
+            const domain = document.getElementById('ssl-input').value.trim();
+            if (!domain) return;
+
+            document.getElementById('ssl-status').innerText = "INITIATING SSL HANDSHAKE...";
+            document.getElementById('ssl-results').innerHTML = '<div style="text-align:center; padding:50px;">DECODING CERTIFICATE CHAIN...</div>';
+
+            try {
+                const res = await fetch('/api/ssl/scan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ domain })
+                });
+                const data = await res.json();
+
+                if (data.error) {
+                    document.getElementById('ssl-status').innerText = "SSL FAIL: " + data.error;
+                    document.getElementById('ssl-results').innerHTML = "";
+                    return;
+                }
+
+                document.getElementById('ssl-status').innerText = "CERTIFICATE VERIFIED.";
+
+                let sansHtml = data.sans.map(s => `<span style="background:#003333; padding:2px 5px; margin:2px; display:inline-block; font-size:0.8rem; border:1px solid #00ffff;">${s}</span>`).join('');
+
+                const html = `
+                 <div class="result-card" style="border-color: #00ffff; width:100%;">
+                    <div class="result-header">
+                        <span class="site-name" style="color:#00ffff;">${data.domain}</span>
+                        ${data.expired ? '<span class="status-badge" style="color:red; border-color:red">EXPIRED</span>' : '<span class="status-badge verified">VALID</span>'}
+                    </div>
+                    
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                        <div>
+                            <h4 style="color:#00ffff; border-bottom:1px solid #005555; padding-bottom:5px;">ISSUED BY</h4>
+                            ${renderDict(data.issuer)}
+                             <div style="margin-top:10px;">
+                                <div style="font-size:0.8rem; color:#888;">VALIDITY</div>
+                                <div>${data.not_before} -> ${data.not_after}</div>
+                             </div>
+                        </div>
+                        <div>
+                            <h4 style="color:#00ffff; border-bottom:1px solid #005555; padding-bottom:5px;">ISSUED TO</h4>
+                            ${renderDict(data.subject)}
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top:20px;">
+                         <h4 style="color:#00ffff; border-bottom:1px solid #005555; padding-bottom:5px;">SUBDOMAINS (SANs) [${data.sans.length}]</h4>
+                         <div style="margin-top:10px;">${sansHtml}</div>
+                    </div>
+                 </div>
+                `;
+                document.getElementById('ssl-results').innerHTML = html;
+
+            } catch (e) {
+                document.getElementById('ssl-status').innerText = "HANDSHAKE FAILED.";
+            }
+        }
+
+        async function analyzeExifFile() {
+            const fileInput = document.getElementById('exif-file');
+            if (fileInput.files.length === 0) return;
+            const file = fileInput.files[0];
+
+            document.getElementById('exif-status').innerText = "UPLOADING BITSTREAM...";
+            document.getElementById('exif-results').innerHTML = '<div style="text-align:center; padding:50px;">EXTRACTING METADATA LAYERS...</div>';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const res = await fetch('/api/tools/exif/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                renderExif(data);
+            } catch (e) {
+                document.getElementById('exif-status').innerText = "UPLOAD FAILED.";
+            }
+        }
+
+        function renderExif(data) {
+            if (data.error) {
+                document.getElementById('exif-status').innerText = "EXTRACT FAIL: " + data.error;
+                document.getElementById('exif-results').innerHTML = "";
+                return;
+            }
+            document.getElementById('exif-status').innerText = "METADATA REVEALED.";
+            let gpsHtml = "";
+            if (data.gps && Object.keys(data.gps).length > 0) {
+                gpsHtml = `<h4 style="color:var(--accent-color); border-bottom:1px solid var(--accent-color); margin-top:20px;">GEOLOCATION DATA</h4>` + renderDict(data.gps);
+            } else {
+                gpsHtml = `<div style="margin-top:20px; color:#666">[NO GPS DATA EMBEDDED]</div>`;
+            }
+
+            const html = `
+                 <div class="result-card" style="border-color: var(--accent-color); width:100%;">
+                    <div class="result-header">
+                        <span class="site-name" style="color:var(--accent-color);">IMAGE METADATA</span>
+                        <span class="status-badge" style="border-color:var(--accent-color); color:var(--accent-color);">EXIF</span>
+                    </div>
+                    <div>
+                        <h4 style="color:var(--accent-color); border-bottom:1px solid var(--accent-color);">BASIC INFO</h4>
+                        ${renderDict(data.basic)}
+                    </div>
+                    ${gpsHtml}
+                 </div>
+                `;
+            document.getElementById('exif-results').innerHTML = html;
+        }
+
+        async function analyzeExif() {
+            const url = document.getElementById('exif-input').value.trim();
+            if (!url) return;
+
+            document.getElementById('exif-status').innerText = "DOWNLOADING RAW BYTES...";
+            document.getElementById('exif-results').innerHTML = '<div style="text-align:center; padding:50px;">EXTRACTING METADATA LAYERS...</div>';
+
+            try {
+                const res = await fetch('/api/tools/exif', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+                const data = await res.json();
+                renderExif(data);
+
+            } catch (e) {
+                document.getElementById('exif-status').innerText = "ANALYSIS ERROR.";
+            }
+        }
+
+        async function generateDorks() {
+            const target = document.getElementById('dork-target').value.trim();
+            const domain = document.getElementById('dork-domain').value.trim();
+            if (!target) return;
+
+            try {
+                const res = await fetch('/api/tools/dork', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ target, domain })
+                });
+                const data = await res.json();
+
+                let html = "";
+
+                // Render Google Dorks
+                html += `<h3 style="color:#fff; border-bottom:1px solid #fff;">GOOGLE (EXTREME)</h3>`;
+                data.google.forEach(d => {
+                    html += `
+                    <div class="result-card" style="border-color:#fff;">
+                        <div style="font-weight:bold; color:#fff">${d.title}</div>
+                        <div style="font-family:monospace; color:#ccc; background:#222; padding:10px; margin:5px 0; word-break:break-all;">${d.query}</div>
+                        <button class="dork-btn" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(d.query)}')">OPEN GOOGLE ></button>
+                    </div>`;
+                });
+
+                // Render Shodan Dorks
+                html += `<h3 style="color:#ff4400; border-bottom:1px solid #ff4400; margin-top:30px;">SHODAN (INFRA)</h3>`;
+                data.shodan.forEach(d => {
+                    html += `
+                    <div class="result-card" style="border-color:#ff4400;">
+                        <div style="font-weight:bold; color:#ff4400">${d.title}</div>
+                        <div style="font-family:monospace; color:#ccc; background:#222; padding:10px; margin:5px 0;">${d.query}</div>
+                        <button class="dork-btn" style="background:#ff4400" onclick="window.open('https://www.shodan.io/search?query=${encodeURIComponent(d.query)}')">OPEN SHODAN ></button>
+                    </div>`;
+                });
+
+                // Render Github Dorks
+                html += `<h3 style="color:#6e5494; border-bottom:1px solid #6e5494; margin-top:30px;">GITHUB (LEAKS)</h3>`;
+                data.github.forEach(d => {
+                    html += `
+                    <div class="result-card" style="border-color:#6e5494;">
+                        <div style="font-weight:bold; color:#6e5494">${d.title}</div>
+                        <div style="font-family:monospace; color:#ccc; background:#222; padding:10px; margin:5px 0;">${d.query}</div>
+                        <button class="dork-btn" style="background:#6e5494" onclick="window.open('https://github.com/search?q=${encodeURIComponent(d.query)}&type=Code')">OPEN GITHUB ></button>
+                    </div>`;
+                });
+
+                document.getElementById('dork-results').innerHTML = html;
+                document.getElementById('dork-status').innerText = "ATTACK VECTORS GENERATED.";
+
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function runGeoint() {
+            const lat = document.getElementById('geo-lat').value.trim();
+            const lon = document.getElementById('geo-lon').value.trim();
+            if (!lat || !lon) return;
+
+            document.getElementById('geo-status').innerText = "TRIANGULATING POSITION...";
+            document.getElementById('geo-results').innerHTML = '<div style="text-align:center; padding:50px;">ACQUIRING SATELLITE LOCK...</div>';
+
+            try {
+                const res = await fetch('/api/tools/geoint', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ lat, lon })
+                });
+                const data = await res.json();
+
+                if (data.error) {
+                    document.getElementById('geo-status').innerText = data.error;
+                    document.getElementById('geo-results').innerHTML = "";
+                    return;
+                }
+
+                let linksHtml = "";
+                for (const [key, url] of Object.entries(data.links)) {
+                    linksHtml += `
+                    <div class="result-card" style="border-color:#00ff00;">
+                        <div style="font-weight:bold; color:#00ff00">${key}</div>
+                        <button class="dork-btn" style="background:#00ff00; color:black; font-weight:bold;" onclick="window.open('${url}')">LAUNCH VIEW ></button>
+                    </div>`;
+                }
+                document.getElementById('geo-results').innerHTML = `<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">${linksHtml}</div>`;
+                document.getElementById('geo-status').innerText = `TARGET ACQUIRED: ${data.coords}`;
+
+            } catch (e) {
+                document.getElementById('geo-status').innerText = "SATELLITE LINK FAILED.";
+            }
+        }
+
+        let flightMap = null;
+        async function scanSky() {
+            const lat = document.getElementById('sky-lat').value.trim();
+            const lon = document.getElementById('sky-lon').value.trim();
+            const rad = document.getElementById('sky-rad').value.trim();
+            if (!lat || !lon) return;
+
+            document.getElementById('sky-status').innerText = "SCANNING AIRSPACE...";
+            document.getElementById('sky-results').innerHTML = "<div style='text-align:center'>READING TRANSPONDERS...</div>";
+
+            // Initialize Map if needed
+            const mapDiv = document.getElementById('sky-map');
+            mapDiv.style.display = 'block';
+            if (!flightMap) {
+                flightMap = L.map('sky-map').setView([lat, lon], 10);
+                L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap &copy; CartoDB',
+                    subdomains: 'abcd',
+                    maxZoom: 19
+                }).addTo(flightMap);
+            } else {
+                flightMap.setView([lat, lon], 10);
+                flightMap.eachLayer((layer) => {
+                    if (layer instanceof L.Marker) { flightMap.removeLayer(layer); }
+                });
+            }
+
+            // Marker for Target
+            L.marker([lat, lon]).addTo(flightMap).bindPopup("TARGET LOCATION").openPopup();
+
+            try {
+                const res = await fetch('/api/tools/flight', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ lat: parseFloat(lat), lon: parseFloat(lon), radius: parseFloat(rad) })
+                });
+                const data = await res.json();
+
+                if (data.error || data.message) {
+                    document.getElementById('sky-status').innerText = "SECTOR CLEAR or ERROR.";
+                    document.getElementById('sky-results').innerHTML = `<div style="text-align:center">${data.error || data.message}</div>`;
+                    return;
+                }
+
+                let listHtml = "";
+                data.flights.forEach(f => {
+                    // Add to map
+                    if (f.lat && f.lon) {
+                        const iconHtml = `<div style="color:#0099ff; font-size:20px; transform: rotate(${f.true_track || 0}deg); text-shadow:0 0 5px #0099ff;">✈</div>`;
+                        const divIcon = L.divIcon({ html: iconHtml, className: 'plane-icon', iconSize: [24, 24], popupAnchor: [0, -10] });
+                        const marker = L.marker([f.lat, f.lon], { icon: divIcon }).addTo(flightMap)
+                            .bindPopup(`<strong style="color:#0099ff">${f.callsign || 'UNKNOWN'}</strong><br>${f.country}<br>Alt: ${f.alt}m | Vel: ${f.velocity}m/s`);
+
+                        // Add marker reference to access later if needed (simple implementation)
+                    }
+
+                    // Populate List
+                    listHtml += `
+                    <div class="result-card" style="border-color:#0055aa; margin-bottom:10px; padding:10px; cursor:pointer; background:rgba(0,0,0,0.5);" onclick="focusMap(${f.lat}, ${f.lon}, '${f.callsign}')">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span class="site-name" style="color:#0099ff; font-size:1rem;">${f.callsign || 'UNK'}</span>
+                            <span style="font-size:0.7rem; background:#003366; padding:2px 5px; border-radius:4px;">${f.country.substring(0, 3).toUpperCase()}</span>
+                        </div>
+                        <div style="font-size:0.8rem; margin-top:5px; display:flex; justify-content:space-between; color:#ccc;">
+                            <span>ALT: ${f.alt}m</span>
+                            <span>VEL: ${f.velocity}m/s</span>
+                        </div>
+                    </div>`;
+                });
+
+                document.getElementById('sky-results').innerHTML = listHtml || '<div style="text-align:center">NO TARGETS IN RANGE</div>';
+                document.getElementById('sky-status').innerText = `TRACKING ${data.count} AIRCRAFT.`;
+
+            } catch (e) {
+                console.error(e);
+                document.getElementById('sky-status').innerText = "RADAR MALFUNCTION.";
+            }
+        }
+
+        function focusMap(lat, lon, callsign) {
+            if (flightMap) {
+                flightMap.setView([lat, lon], 12);
+                // Optionally find marker and open popup - requires storing markers in object/array
+            }
+        }
+
+        function updateSkyRegion() {
+            const regions = {
+                "uk": { lat: 51.5074, lon: -0.1278, rad: 300 },
+                "usa_east": { lat: 40.7128, lon: -74.0060, rad: 500 },
+                "usa_west": { lat: 34.0522, lon: -118.2437, rad: 500 },
+                "france": { lat: 48.8566, lon: 2.3522, rad: 300 },
+                "germany": { lat: 52.5200, lon: 13.4050, rad: 300 },
+                "russia": { lat: 55.7558, lon: 37.6173, rad: 400 },
+                "china": { lat: 31.2304, lon: 121.4737, rad: 500 },
+                "japan": { lat: 35.6762, lon: 139.6503, rad: 300 },
+                "dubai": { lat: 25.2048, lon: 55.2708, rad: 200 }
+            };
+            const sel = document.getElementById('sky-country').value;
+            if (regions[sel]) {
+                document.getElementById('sky-lat').value = regions[sel].lat;
+                document.getElementById('sky-lon').value = regions[sel].lon;
+                document.getElementById('sky-rad').value = regions[sel].rad;
+            }
+        }
+
+        function renderDict(obj) {
+            return Object.entries(obj).map(([k, v]) => `<div><span style="color:#666">${k}:</span> ${v}</div>`).join('');
+        }
+
+        // --- V4 MODULE FUNCTIONS ---
+
+        async function scanPhantom() {
+            const username = document.getElementById('phantom-input').value.trim();
+            if(!username) return;
+
+            document.getElementById('phantom-status').innerText = "HUNTING USERNAME ACROSS PLATFORMS...";
+            document.getElementById('phantom-grid').innerHTML = '<div style="text-align:center; padding:50px; width:100%;">SCANNING 200+ NETWORKS...</div>';
+            document.getElementById('phantom-meta').style.display = 'none';
+
+            try {
+                const res = await fetch('/api/phantom', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({username})
+                });
+                const data = await res.json();
+                
+                // Update Gauge
+                document.getElementById('phantom-score-text').innerText = data.risk_score + "%";
+                document.getElementById('phantom-score-bar').style.width = data.risk_score + "%";
+                if(data.risk_score > 50) document.getElementById('phantom-score-bar').style.background = 'var(--error)';
+                else if(data.risk_score > 20) document.getElementById('phantom-score-bar').style.background = 'var(--warning)';
+                else document.getElementById('phantom-score-bar').style.background = 'var(--success)';
+
+                // Update Meta Layer
+                document.getElementById('phantom-avatar').src = data.gravatar;
+                document.getElementById('phantom-meta').style.display = 'flex';
+                
+                let catHtml = "";
+                for(const [c, count] of Object.entries(data.categories)) {
+                    catHtml += `<span style="background:var(--secondary-bg); color:var(--text-color); padding:5px 10px; border-radius:15px; border:1px solid var(--accent-neon); font-size:0.8rem;">${c.toUpperCase()}: ${count}</span>`;
+                }
+                document.getElementById('phantom-cats').innerHTML = catHtml;
+
+                // Build Grid
+                let gridHtml = "";
+                data.profiles.forEach(p => {
+                    gridHtml += `
+                    <div class="result-card" style="border-color:var(--accent-neon); cursor:pointer;" onclick="window.open('${p.url}')">
+                        <div style="font-weight:bold; color:var(--text-color); margin-bottom:5px;">${p.platform}</div>
+                        <div style="font-size:0.8rem; color:#888;">STATUS 200 (HIT)</div>
+                    </div>`;
+                });
+                
+                if(data.profiles.length === 0) gridHtml = '<div style="text-align:center; width:100%;">NO PROFILES FOUND.</div>';
+                
+                document.getElementById('phantom-grid').innerHTML = gridHtml;
+                document.getElementById('phantom-status').innerText = `FOUND COMMANDING PRESENCE ON ${data.found} / ${data.total_checked} PLATFORMS.`;
+            } catch(e) {
+                document.getElementById('phantom-status').innerText = "PHANTOM IDENTIFICATION FAILED.";
+            }
+        }
+
+        async function scanBreach() {
+            const query = document.getElementById('breach-input').value.trim();
+            const type = document.getElementById('breach-type').value;
+            if(!query) return;
+
+            document.getElementById('breach-status').innerText = "QUERYING DARK VAULTS...";
+            document.getElementById('breach-results').innerHTML = '<div style="text-align:center; padding:50px;">ANALYZING LEAKS...</div>';
+            document.getElementById('breach-summary').innerHTML = '';
+            document.getElementById('paste-dump-results').innerHTML = '';
+
+            try {
+                const res = await fetch('/api/breach', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({query, type})
+                });
+                const data = await res.json();
+
+                if(data.type === 'password') {
+                    if(data.pwned) {
+                         document.getElementById('breach-results').innerHTML = `
+                         <div class="result-card" style="border-color:var(--error); text-align:center;">
+                            <h2 style="color:var(--error)">PASSWORD COMPROMISED</h2>
+                            <div>SEEN ${data.count} TIMES IN KNOWN DATA BREACHES</div>
+                            <div style="color:#aaa; font-size:0.8rem; margin-top:10px;">DO NOT USE THIS PASSWORD</div>
+                         </div>`;
+                         document.getElementById('breach-status').innerText = "WARNING: HIGH SEVERITY.";
+                    } else {
+                         document.getElementById('breach-results').innerHTML = `
+                         <div class="result-card" style="border-color:var(--success); text-align:center;">
+                            <h2 style="color:var(--success)">PASSWORD SAFE</h2>
+                            <div>NO MATCHES FOUND IN CURRENT KNOWN DATABASES</div>
+                         </div>`;
+                         document.getElementById('breach-status').innerText = "NO KNOWN EXPOSURE.";
+                    }
+                    return;
+                }
+
+                // Email flow
+                document.getElementById('breach-summary').innerHTML = `
+                <div style="display:flex; gap:20px; text-align:center; justify-content:center; background:var(--secondary-bg); padding:15px; border-radius:8px; border:1px solid #ff4444;">
+                    <div><div style="font-size:2rem; color:#ff4444;">${data.breach_count}</div><div style="font-size:0.8rem; color:#aaa;">DATABASES</div></div>
+                    <div><div style="font-size:2rem; color:#ff8800;">${data.paste_count}</div><div style="font-size:0.8rem; color:#aaa;">PASTES</div></div>
+                    <div><div style="font-size:2rem; color:var(--text-color);">${data.total_records_exposed.toLocaleString()}</div><div style="font-size:0.8rem; color:#aaa;">RECORDS (EST)</div></div>
+                </div>`;
+
+                let html = "";
+                data.breaches.forEach(b => {
+                    if(b._note) {
+                        html += `<div style="text-align:center; color:#ffcc00; margin-bottom:15px;">${b._note}</div>`;
+                        return;
+                    }
+                    const sevColor = b.severity === 'CRITICAL' ? 'var(--error)' : (b.severity === 'HIGH' ? 'var(--warning)' : 'var(--text-color)');
+                    html += `
+                    <div class="result-card" style="border-color:${sevColor}; display:flex; gap:15px;">
+                        <img src="${b.logo}" style="width:60px; height:60px; object-fit:contain; border-radius:4px;" onerror="this.style.display='none'">
+                        <div>
+                            <div style="font-weight:bold; color:${sevColor}; font-size:1.2rem;">${b.name} <span style="font-size:0.7rem; padding:2px 5px; background:rgba(255,0,0,0.2); border-radius:3px;">${b.severity}</span></div>
+                            <div style="font-size:0.8rem; color:#888; margin-bottom:10px;">${b.date} | ${b.domain || 'Unknown Domain'}</div>
+                            <div style="font-size:0.85rem; margin-bottom:10px; color:#bbb;">${b.description}</div>
+                            <div style="font-size:0.8rem; color:var(--text-color)"><strong>COMPROMISED:</strong> ${b.data_classes.join(', ')}</div>
+                        </div>
+                    </div>`;
+                });
+                
+                if(data.breaches.length === 0) html = '<div class="result-card" style="border-color:var(--success); text-align:center;"><h3 style="color:var(--success)">CLEAN REPUTATION</h3><div>NO BREACHES DETECTED.</div></div>';
+                
+                document.getElementById('breach-results').innerHTML = html;
+                
+                // Pastedump logic
+                let pasteDumpHtml = "";
+                if(data.paste_dumps && data.paste_dumps.length > 0) {
+                     pasteDumpHtml += `<h3 style="color:#ff8800; border-bottom:1px solid #ff8800;">RAW AGGREGATOR LEAKS</h3>`;
+                     data.paste_dumps.forEach(pd => {
+                         pasteDumpHtml += `<div class="result-card" style="border-color:#ff8800; display:flex; justify-content:space-between; align-items:center;">
+                             <div>
+                                 <strong style="color:#ff8800;">Pastebin ID: ${pd.id}</strong><br>
+                                 <span style="font-size:0.8rem; color:#aaa;">Indexed: ${new Date(pd.date*1000).toISOString().split('T')[0]}</span>
+                             </div>
+                             <button class="dork-btn" style="background:#ff8800; color:#000;" onclick="window.open('${pd.url}')">VIEW RAW CACHE ></button>
+                         </div>`;
+                     });
+                     document.getElementById('paste-dump-results').innerHTML = pasteDumpHtml;
+                }
+
+                document.getElementById('breach-status').innerText = "AUDIT COMPLETE.";
+            } catch(e) {
+                document.getElementById('breach-status').innerText = "VAULT CONNECTION TERMINATED.";
+            }
+        }
+
+        async function scanSigint() {
+            const query = document.getElementById('sigint-input').value.trim();
+            if(!query) return;
+
+            document.getElementById('sigint-status').innerText = "INTERCEPTING TRANSMISSIONS...";
+            document.getElementById('sigint-results').innerHTML = '<div style="text-align:center; padding:50px;">ANALYZING CHATTER...</div>';
+
+            try {
+                const res = await fetch('/api/sigint', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({query})
+                });
+                const data = await res.json();
+                
+                document.getElementById('sig-pos').innerText = data.sentiment_summary.POSITIVE;
+                document.getElementById('sig-neu').innerText = data.sentiment_summary.NEUTRAL;
+                document.getElementById('sig-neg').innerText = data.sentiment_summary.NEGATIVE;
+
+                let html = "";
+                data.feed.forEach(item => {
+                    let color = 'var(--text-color)';
+                    if(item.source === 'Reddit') color = '#ff4500';
+                    else if(item.source === 'HackerNews') color = '#ff6600';
+                    else if(item.source === 'News') color = '#4285f4';
+                    else if(item.source === 'Twitter/X') color = '#1da1f2';
+                    
+                    let sentColor = '#888';
+                    if(item.sentiment === 'POSITIVE') sentColor = 'var(--success)';
+                    if(item.sentiment === 'NEGATIVE') sentColor = 'var(--error)';
+
+                    html += `
+                    <div class="result-card" style="border-color:${color}; cursor:pointer;" onclick="window.open('${item.url}')">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                            <span style="color:${color}; font-weight:bold;">[${item.source.toUpperCase()}] ${item.outlet || item.subreddit || ''}</span>
+                            <span style="font-size:0.8rem; color:#aaa;">${item.date}</span>
+                        </div>
+                        <div style="font-size:1.1rem; margin-bottom:8px; color:#fff;">${item.title}</div>
+                        <div style="font-size:0.9rem; color:#bbb; line-height:1.4;">${item.snippet}</div>
+                        <div style="margin-top:10px; font-size:0.8rem; display:flex; gap:15px; color:#888;">
+                            <span style="color:${sentColor};">SENTIMENT: ${item.sentiment}</span>
+                            ${item.score ? `<span>SCORE: ${item.score}</span>` : ''}
+                        </div>
+                    </div>`;
+                });
+                
+                if(data.feed.length === 0) html = '<div style="text-align:center; padding:30px;">NO RECENT INTEL CAPTURED.</div>';
+                
+                document.getElementById('sigint-results').innerHTML = html;
+                document.getElementById('sigint-status').innerText = `GATHERED ${data.total} INTELLIGENCE PACKETS.`;
+            } catch(e) {
+                document.getElementById('sigint-status').innerText = "INTERCEPTION FAILURE.";
+            }
+        }
+
+        async function scanShadow() {
+            const target = document.getElementById('shadow-input').value.trim();
+            if(!target) return;
+
+            document.getElementById('shadow-status').innerText = "TRACING SHADOW INFRASTRUCTURE...";
+            document.getElementById('shadow-dashboard').style.display = 'none';
+
+            try {
+                const res = await fetch('/api/shadowmap', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({target})
+                });
+                const data = await res.json();
+                
+                document.getElementById('shadow-dashboard').style.display = 'grid';
+                
+                // Score Gauge
+                const scoreEl = document.getElementById('shadow-score');
+                const levelEl = document.getElementById('shadow-level');
+                scoreEl.innerText = data.threat_score;
+                levelEl.innerText = data.threat_level;
+                
+                let sColor = 'var(--success)';
+                if(data.threat_level === 'CRITICAL') sColor = 'var(--error)';
+                else if(data.threat_level === 'HIGH') sColor = 'var(--warning)';
+                else if(data.threat_level === 'MEDIUM') sColor = 'var(--text-color)';
+                
+                scoreEl.style.color = sColor;
+                levelEl.style.background = sColor;
+                
+                // Factors
+                let fHtml = "";
+                data.threat_factors.forEach(f => {
+                    fHtml += `<div style="padding:5px; background:rgba(255,0,0,0.1); border-left:2px solid var(--error); margin-bottom:5px;">⚠ ${f}</div>`;
+                });
+                document.getElementById('shadow-factors').innerHTML = fHtml || "<div>NO ACTIVE THREATS REPORTED.</div>";
+
+                // AbuseIPDB 
+                let abuseHtml = `<h4 style="color:#ff8800; border-bottom:1px solid #ff8800;">ABUSE IPDB</h4>`;
+                if(data.abuseipdb && data.abuseipdb.available) {
+                    abuseHtml += renderDict({
+                        "CONFIDENCE SCORE": data.abuseipdb.abuse_score + "%",
+                        "TOTAL REPORTS": data.abuseipdb.total_reports,
+                        "ISP": data.abuseipdb.isp || 'N/A',
+                        "USAGE": data.abuseipdb.usage_type || 'N/A'
+                    });
+                } else {
+                    abuseHtml += `<div style="color:#666; margin-top:5px;">[NO DATA OR API KEY MISSING]</div>`;
+                }
+                document.getElementById('shadow-abuse').innerHTML = abuseHtml;
+
+                // VirusTotal
+                let vtHtml = `<h4 style="color:#00ffaa; border-bottom:1px solid #00ffaa;">VIRUSTOTAL SYNDICATE</h4>`;
+                if(data.virustotal && data.virustotal.available) {
+                    vtHtml += renderDict({
+                        "MALICIOUS ENGINES": data.virustotal.malicious,
+                        "SUSPICIOUS ENGINES": data.virustotal.suspicious,
+                        "REPUTATION": data.virustotal.reputation,
+                        "TOTAL SCANNED": data.virustotal.total_engines
+                    });
+                } else {
+                    vtHtml += `<div style="color:#666; margin-top:5px;">[NO DATA OR API KEY MISSING]</div>`;
+                }
+                document.getElementById('shadow-vt').innerHTML = vtHtml;
+
+                // GEO
+                let geoHtml = `<h4 style="color:var(--text-color); border-bottom:1px solid var(--text-color);">BASIC TELEMETRY</h4>`;
+                if(data.geo && Object.keys(data.geo).length > 0) {
+                    geoHtml += renderDict({
+                        "IP": data.geo.ip,
+                        "HOSTNAME": data.geo.hostname || 'None',
+                        "CITY": data.geo.city,
+                        "COUNTRY": data.geo.country,
+                        "ORGANIZATION": data.geo.org
+                    });
+                } else {
+                    geoHtml += `<div style="color:#666; margin-top:5px;">[UNABLE TO RESOLVE LOCATION]</div>`;
+                }
+                document.getElementById('shadow-geo').innerHTML = geoHtml;
+
+                document.getElementById('shadow-status').innerText = "TRACE COMPLETE.";
+
+            } catch(e) {
+                document.getElementById('shadow-status').innerText = "TRACE ABORTED. CONNECTION LOST.";
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+            </div><!-- end content-area -->
+        </main><!-- end main-content -->
+    </div><!-- end app-container -->
+
+    <!-- 3D CARD TOWER BACKGROUND -->
+    <input type="checkbox" id="wf" class="wireframe_input">
+    <div class="towerOuter">
+        <div class="tower">
+            <!-- 208 cards + shadow generated by loop in CSS/HTML logic -->
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="shadow"></div>
+        </div>
+    </div>
+</body>
+
+</html>

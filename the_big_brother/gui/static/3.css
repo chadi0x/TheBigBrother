@@ -1,0 +1,1195 @@
+.wireframe_input {
+    position: fixed;
+    top: -100%;
+    left: -100%;
+    visibility: hidden;
+}
+
+.wireframe_input:checked+.wireframe_label {
+    color: chartreuse;
+}
+
+.wireframe_input:checked+.wireframe_label::before {
+    background-color: chartreuse;
+}
+
+.wireframe_input:checked~.towerOuter>.tower>.card,
+.wireframe_input:checked~.towerOuter>.tower>.card::after {
+    background-image: unset;
+    box-shadow: 0 0 1px 1px #fff inset;
+}
+
+.wireframe_label {
+    position: fixed;
+    top: 0%;
+    left: 0%;
+    font-size: 20px;
+    padding: 0.5em;
+    z-index: 3;
+    transition: color 0.25s;
+    display: none;
+    /* Hidden for this UI */
+}
+
+.hoverPad {
+    position: absolute;
+    z-index: 2;
+    width: 100%;
+    height: 10%;
+    display: none;
+    /* Disable interaction for background use */
+}
+
+.towerOuter {
+    position: fixed;
+    /* Background */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    perspective: 250px;
+    perspective-origin: center 50%;
+    transition: perspective-origin 0.25s;
+    z-index: 1;
+    /* Updated to be visible above body background */
+    pointer-events: none;
+    opacity: 0.25;
+    /* Visible but not distracting */
+    transform: scale(4.0);
+}
+
+.tower {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50px;
+    transform-style: preserve-3d;
+    animation: towerRotate 60s infinite linear;
+}
+
+@keyframes towerRotate {
+    from {
+        transform: translateX(-50%) rotateY(0deg);
+    }
+
+    to {
+        transform: translateX(-50%) rotateY(360deg);
+    }
+}
+
+.card {
+    position: absolute;
+    width: 50px;
+    height: 70px;
+    background-image: url('https://assets.codepen.io/1948355/cardsheet01.jpg');
+    background-size: 650px 280px;
+    border-radius: 8px;
+    transform-style: preserve-3d;
+    box-shadow: 0 0 10px #0007 inset;
+    backface-visibility: hidden;
+}
+
+.card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50px;
+    height: 70px;
+    transform: rotateY(180deg);
+    backface-visibility: hidden;
+    background-image: url('https://assets.codepen.io/1948355/cardback01.jpg');
+    background-size: 50px 70px;
+    border: 1px solid #fff7;
+    border-radius: 8px;
+}
+
+.shadow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotateX(-90deg) translateZ(104px);
+    width: 630px;
+    height: 630px;
+    background-image: radial-gradient(#0000, #000 210px, #0000 315px);
+}
+
+.card:nth-child(1) {
+    background-position: 300px 210px;
+    transform: rotateY(0.0deg) translateX(210px) translateY(-99.0px) rotateX(-20deg);
+}
+
+.card:nth-child(25) {
+    background-position: 100px 140px;
+    transform: rotateY(-352.5deg) translateX(210px) translateY(-99.0px) rotateX(200deg);
+}
+
+.card:nth-child(49) {
+    background-position: 550px 280px;
+    transform: rotateY(-716.25deg) translateX(210px) translateY(-132px) rotateX(-90deg);
+}
+
+.card:nth-child(2) {
+    background-position: 500px 280px;
+    transform: rotateY(15.0deg) translateX(210px) translateY(-99.0px) rotateX(-20deg);
+}
+
+.card:nth-child(26) {
+    background-position: 450px 140px;
+    transform: rotateY(-337.5deg) translateX(210px) translateY(-99.0px) rotateX(200deg);
+}
+
+.card:nth-child(50) {
+    background-position: 150px 280px;
+    transform: rotateY(-701.25deg) translateX(210px) translateY(-132px) rotateX(-90deg);
+}
+
+.card:nth-child(3) {
+    background-position: 500px 70px;
+    transform: rotateY(30.0deg) translateX(210px) translateY(-99.0px) rotateX(-20deg);
+}
+
+.card:nth-child(27) {
+    background-position: 600px 70px;
+    transform: rotateY(-322.5deg) translateX(210px) translateY(-99.0px) rotateX(200deg);
+}
+
+.card:nth-child(51) {
+    background-position: 500px 140px;
+    transform: rotateY(-686.25deg) translateX(210px) translateY(-132px) rotateX(-90deg);
+}
+
+.card:nth-child(4) {
+    background-position: 0px 280px;
+    transform: rotateY(45.0deg) translateX(210px) translateY(-99.0px) rotateX(-20deg);
+}
+
+.card:nth-child(28) {
+    background-position: 200px 0px;
+    transform: rotateY(-307.5deg) translateX(210px) translateY(-99.0px) rotateX(200deg);
+}
+
+.card:nth-child(52) {
+    background-position: 50px 70px;
+    transform: rotateY(-671.25deg) translateX(210px) translateY(-132px) rotateX(-90deg);
+}
+
+.card:nth-child(5) {
+    background-position: 600px 140px;
+    transform: rotateY(60.0deg) translateX(210px) translateY(-99.0px) rotateX(-20deg);
+}
+
+.card:nth-child(29) {
+    background-position: 450px 140px;
+    transform: rotateY(-292.5deg) translateX(210px) translateY(-99.0px) rotateX(200deg);
+}
+
+.card:nth-child(53) {
+    background-position: 50px 140px;
+    transform: rotateY(-656.25deg) translateX(210px) translateY(-132px) rotateX(-90deg);
+}
+
+.card:nth-child(6) {
+    background-position: 0px 70px;
+    transform: rotateY(75.0deg) translateX(210px) translateY(-99.0px) rotateX(-20deg);
+}
+
+.card:nth-child(30) {
+    background-position: 650px 140px;
+    transform: rotateY(-277.5deg) translateX(210px) translateY(-99.0px) rotateX(200deg);
+}
+
+.card:nth-child(54) {
+    background-position: 550px 140px;
+    transform: rotateY(-641.25deg) translateX(210px) translateY(-132px) rotateX(-90deg);
+}
+
+.card:nth-child(7) {
+    background-position: 500px 0px;
+    transform: rotateY(90.0deg) translateX(210px) translateY(-99.0px) rotateX(-20deg);
+}
+
+.card:nth-child(31) {
+    background-position: 550px 210px;
+    transform: rotateY(-262.5deg) translateX(210px) translateY(-99.0px) rotateX(200deg);
+}
+
+.card:nth-child(55) {
+    background-position: 350px 210px;
+    transform: rotateY(-626.25deg) translateX(210px) translateY(-132px) rotateX(-90deg);
+}
+
+.card:nth-child(8) {
+    background-position: 400px 70px;
+    transform: rotateY(105.0deg) translateX(210px) translateY(-99.0px) rotateX(-20deg);
+}
+
+.card:nth-child(32) {
+    background-position: 350px 280px;
+    transform: rotateY(-247.5deg) translateX(210px) translateY(-99.0px) rotateX(200deg);
+}
+
+.card:nth-child(56) {
+    background-position: 200px 0px;
+    transform: rotateY(-611.25deg) translateX(210px) translateY(-132px) rotateX(-90deg);
+}
+
+.card:nth-child(9) {
+    background-position: 0px 280px;
+    transform: rotateY(120.0deg) translateX(210px) translateY(-99.0px) rotateX(-20deg);
+}
+
+.card:nth-child(33) {
+    background-position: 400px 0px;
+    transform: rotateY(-232.5deg) translateX(210px) translateY(-99.0px) rotateX(200deg);
+}
+
+.card:nth-child(57) {
+    background-position: 550px 70px;
+    transform: rotateY(-596.25deg) translateX(210px) translateY(-132px) rotateX(-90deg);
+}
+
+.card:nth-child(10) {
+    background-position: 550px 140px;
+    transform: rotateY(135.0deg) translateX(210px) translateY(-99.0px) rotateX(-20deg);
+}
+
+.card:nth-child(34) {
+    background-position: 550px 140px;
+    transform: rotateY(-217.5deg) translateX(210px) translateY(-99.0px) rotateX(200deg);
+}
+
+.card:nth-child(58) {
+    background-position: 600px 0px;
+    transform: rotateY(-581.25deg) translateX(210px) translateY(-132px) rotateX(-90deg);
+}
+
+.card:nth-child(11) {
+    background-position: 300px 0px;
+    transform: rotateY(150.0deg) translateX(210px) translateY(-99.0px) rotateX(-20deg);
+}
+
+.card:nth-child(35) {
+    background-position: 600px 0px;
+    transform: rotateY(-202.5deg) translateX(210px) translateY(-99.0px) rotateX(200deg);
+}
+
+.card:nth-child(59) {
+    background-position: 550px 280px;
+    transform: rotateY(-566.25deg) translateX(210px) translateY(-132px) rotateX(-90deg);
+}
+
+.card:nth-child(12) {
+    background-position: 50px 210px;
+    transform: rotateY(165.0deg) translateX(210px) translateY(-99.0px) rotateX(-20deg);
+}
+
+.card:nth-child(36) {
+    background-position: 100px 210px;
+    transform: rotateY(-187.5deg) translateX(210px) translateY(-99.0px) rotateX(200deg);
+}
+
+.card:nth-child(60) {
+    background-position: 300px 210px;
+    transform: rotateY(-551.25deg) translateX(210px) translateY(-132px) rotateX(-90deg);
+}
+
+.card:nth-child(13) {
+    background-position: 150px 280px;
+    transform: rotateY(180.0deg) translateX(210px) translateY(-99.0px) rotateX(-20deg);
+}
+
+.card:nth-child(37) {
+    background-position: 50px 280px;
+    transform: rotateY(-172.5deg) translateX(210px) translateY(-99.0px) rotateX(200deg);
+}
+
+.card:nth-child(61) {
+    background-position: 250px 0px;
+    transform: rotateY(-536.25deg) translateX(210px) translateY(-132px) rotateX(-90deg);
+}
+
+.card:nth-child(14) {
+    background-position: 50px 140px;
+    transform: rotateY(195.0deg) translateX(210px) translateY(-99.0px) rotateX(-20deg);
+}
+
+.card:nth-child(38) {
+    background-position: 550px 140px;
+    transform: rotateY(-157.5deg) translateX(210px) translateY(-99.0px) rotateX(200deg);
+}
+
+.card:nth-child(62) {
+    background-position: 350px 210px;
+    transform: rotateY(-521.25deg) translateX(210px) translateY(-132px) rotateX(-90deg);
+}
+
+.card:nth-child(15) {
+    background-position: 300px 210px;
+    transform: rotateY(210.0deg) translateX(210px) translateY(-99.0px) rotateX(-20deg);
+}
+
+.card:nth-child(39) {
+    background-position: 300px 0px;
+    transform: rotateY(-142.5deg) translateX(210px) translateY(-99.0px) rotateX(200deg);
+}
+
+.card:nth-child(63) {
+    background-position: 400px 140px;
+    transform: rotateY(-506.25deg) translateX(210px) translateY(-132px) rotateX(-90deg);
+}
+
+.card:nth-child(16) {
+    background-position: 300px 140px;
+    transform: rotateY(225.0deg) translateX(210px) translateY(-99.0px) rotateX(-20deg);
+}
+
+.card:nth-child(40) {
+    background-position: 450px 210px;
+    transform: rotateY(-127.5deg) translateX(210px) translateY(-99.0px) rotateX(200deg);
+}
+
+.card:nth-child(64) {
+    background-position: 450px 210px;
+    transform: rotateY(-491.25deg) translateX(210px) translateY(-132px) rotateX(-90deg);
+}
+
+.card:nth-child(17) {
+    background-position: 450px 140px;
+    transform: rotateY(240.0deg) translateX(210px) translateY(-99.0px) rotateX(-20deg);
+}
+
+.card:nth-child(41) {
+    background-position: 100px 140px;
+    transform: rotateY(-112.5deg) translateX(210px) translateY(-99.0px) rotateX(200deg);
+}
+
+.card:nth-child(65) {
+    background-position: 300px 140px;
+    transform: rotateY(-476.25deg) translateX(210px) translateY(-132px) rotateX(-90deg);
+}
+
+.card:nth-child(18) {
+    background-position: 550px 0px;
+    transform: rotateY(255.0deg) translateX(210px) translateY(-99.0px) rotateX(-20deg);
+}
+
+.card:nth-child(42) {
+    background-position: 550px 70px;
+    transform: rotateY(-97.5deg) translateX(210px) translateY(-99.0px) rotateX(200deg);
+}
+
+.card:nth-child(66) {
+    background-position: 500px 210px;
+    transform: rotateY(-461.25deg) translateX(210px) translateY(-132px) rotateX(-90deg);
+}
+
+.card:nth-child(19) {
+    background-position: 100px 280px;
+    transform: rotateY(270.0deg) translateX(210px) translateY(-99.0px) rotateX(-20deg);
+}
+
+.card:nth-child(43) {
+    background-position: 550px 70px;
+    transform: rotateY(-82.5deg) translateX(210px) translateY(-99.0px) rotateX(200deg);
+}
+
+.card:nth-child(67) {
+    background-position: 200px 0px;
+    transform: rotateY(-446.25deg) translateX(210px) translateY(-132px) rotateX(-90deg);
+}
+
+.card:nth-child(20) {
+    background-position: 250px 0px;
+    transform: rotateY(285.0deg) translateX(210px) translateY(-99.0px) rotateX(-20deg);
+}
+
+.card:nth-child(44) {
+    background-position: 200px 280px;
+    transform: rotateY(-67.5deg) translateX(210px) translateY(-99.0px) rotateX(200deg);
+}
+
+.card:nth-child(68) {
+    background-position: 0px 210px;
+    transform: rotateY(-431.25deg) translateX(210px) translateY(-132px) rotateX(-90deg);
+}
+
+.card:nth-child(21) {
+    background-position: 300px 0px;
+    transform: rotateY(300.0deg) translateX(210px) translateY(-99.0px) rotateX(-20deg);
+}
+
+.card:nth-child(45) {
+    background-position: 450px 280px;
+    transform: rotateY(-52.5deg) translateX(210px) translateY(-99.0px) rotateX(200deg);
+}
+
+.card:nth-child(69) {
+    background-position: 450px 210px;
+    transform: rotateY(-416.25deg) translateX(210px) translateY(-132px) rotateX(-90deg);
+}
+
+.card:nth-child(22) {
+    background-position: 250px 70px;
+    transform: rotateY(315.0deg) translateX(210px) translateY(-99.0px) rotateX(-20deg);
+}
+
+.card:nth-child(46) {
+    background-position: 500px 280px;
+    transform: rotateY(-37.5deg) translateX(210px) translateY(-99.0px) rotateX(200deg);
+}
+
+.card:nth-child(70) {
+    background-position: 450px 140px;
+    transform: rotateY(-401.25deg) translateX(210px) translateY(-132px) rotateX(-90deg);
+}
+
+.card:nth-child(23) {
+    background-position: 550px 0px;
+    transform: rotateY(330.0deg) translateX(210px) translateY(-99.0px) rotateX(-20deg);
+}
+
+.card:nth-child(47) {
+    background-position: 650px 70px;
+    transform: rotateY(-22.5deg) translateX(210px) translateY(-99.0px) rotateX(200deg);
+}
+
+.card:nth-child(71) {
+    background-position: 350px 0px;
+    transform: rotateY(-386.25deg) translateX(210px) translateY(-132px) rotateX(-90deg);
+}
+
+.card:nth-child(24) {
+    background-position: 600px 70px;
+    transform: rotateY(345.0deg) translateX(210px) translateY(-99.0px) rotateX(-20deg);
+}
+
+.card:nth-child(48) {
+    background-position: 450px 280px;
+    transform: rotateY(-7.5deg) translateX(210px) translateY(-99.0px) rotateX(200deg);
+}
+
+.card:nth-child(72) {
+    background-position: 250px 70px;
+    transform: rotateY(-371.25deg) translateX(210px) translateY(-132px) rotateX(-90deg);
+}
+
+.card:nth-child(73) {
+    background-position: 450px 0px;
+    transform: rotateY(7.5deg) translateX(210px) translateY(-33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(97) {
+    background-position: 150px 0px;
+    transform: rotateY(-345.0deg) translateX(210px) translateY(-33.0px) rotateX(200deg);
+}
+
+.card:nth-child(121) {
+    background-position: 0px 0px;
+    transform: rotateY(-708.75deg) translateX(210px) translateY(-66px) rotateX(-90deg);
+}
+
+.card:nth-child(74) {
+    background-position: 650px 210px;
+    transform: rotateY(22.5deg) translateX(210px) translateY(-33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(98) {
+    background-position: 400px 70px;
+    transform: rotateY(-330.0deg) translateX(210px) translateY(-33.0px) rotateX(200deg);
+}
+
+.card:nth-child(122) {
+    background-position: 150px 280px;
+    transform: rotateY(-693.75deg) translateX(210px) translateY(-66px) rotateX(-90deg);
+}
+
+.card:nth-child(75) {
+    background-position: 400px 210px;
+    transform: rotateY(37.5deg) translateX(210px) translateY(-33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(99) {
+    background-position: 100px 0px;
+    transform: rotateY(-315.0deg) translateX(210px) translateY(-33.0px) rotateX(200deg);
+}
+
+.card:nth-child(123) {
+    background-position: 250px 140px;
+    transform: rotateY(-678.75deg) translateX(210px) translateY(-66px) rotateX(-90deg);
+}
+
+.card:nth-child(76) {
+    background-position: 200px 0px;
+    transform: rotateY(52.5deg) translateX(210px) translateY(-33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(100) {
+    background-position: 600px 0px;
+    transform: rotateY(-300.0deg) translateX(210px) translateY(-33.0px) rotateX(200deg);
+}
+
+.card:nth-child(124) {
+    background-position: 0px 140px;
+    transform: rotateY(-663.75deg) translateX(210px) translateY(-66px) rotateX(-90deg);
+}
+
+.card:nth-child(77) {
+    background-position: 550px 140px;
+    transform: rotateY(67.5deg) translateX(210px) translateY(-33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(101) {
+    background-position: 0px 140px;
+    transform: rotateY(-285.0deg) translateX(210px) translateY(-33.0px) rotateX(200deg);
+}
+
+.card:nth-child(125) {
+    background-position: 100px 0px;
+    transform: rotateY(-648.75deg) translateX(210px) translateY(-66px) rotateX(-90deg);
+}
+
+.card:nth-child(78) {
+    background-position: 600px 0px;
+    transform: rotateY(82.5deg) translateX(210px) translateY(-33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(102) {
+    background-position: 450px 70px;
+    transform: rotateY(-270.0deg) translateX(210px) translateY(-33.0px) rotateX(200deg);
+}
+
+.card:nth-child(126) {
+    background-position: 350px 140px;
+    transform: rotateY(-633.75deg) translateX(210px) translateY(-66px) rotateX(-90deg);
+}
+
+.card:nth-child(79) {
+    background-position: 200px 0px;
+    transform: rotateY(97.5deg) translateX(210px) translateY(-33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(103) {
+    background-position: 0px 210px;
+    transform: rotateY(-255.0deg) translateX(210px) translateY(-33.0px) rotateX(200deg);
+}
+
+.card:nth-child(127) {
+    background-position: 100px 70px;
+    transform: rotateY(-618.75deg) translateX(210px) translateY(-66px) rotateX(-90deg);
+}
+
+.card:nth-child(80) {
+    background-position: 250px 280px;
+    transform: rotateY(112.5deg) translateX(210px) translateY(-33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(104) {
+    background-position: 350px 140px;
+    transform: rotateY(-240.0deg) translateX(210px) translateY(-33.0px) rotateX(200deg);
+}
+
+.card:nth-child(128) {
+    background-position: 150px 210px;
+    transform: rotateY(-603.75deg) translateX(210px) translateY(-66px) rotateX(-90deg);
+}
+
+.card:nth-child(81) {
+    background-position: 50px 70px;
+    transform: rotateY(127.5deg) translateX(210px) translateY(-33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(105) {
+    background-position: 100px 0px;
+    transform: rotateY(-225.0deg) translateX(210px) translateY(-33.0px) rotateX(200deg);
+}
+
+.card:nth-child(129) {
+    background-position: 200px 0px;
+    transform: rotateY(-588.75deg) translateX(210px) translateY(-66px) rotateX(-90deg);
+}
+
+.card:nth-child(82) {
+    background-position: 50px 280px;
+    transform: rotateY(142.5deg) translateX(210px) translateY(-33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(106) {
+    background-position: 200px 140px;
+    transform: rotateY(-210.0deg) translateX(210px) translateY(-33.0px) rotateX(200deg);
+}
+
+.card:nth-child(130) {
+    background-position: 650px 140px;
+    transform: rotateY(-573.75deg) translateX(210px) translateY(-66px) rotateX(-90deg);
+}
+
+.card:nth-child(83) {
+    background-position: 200px 280px;
+    transform: rotateY(157.5deg) translateX(210px) translateY(-33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(107) {
+    background-position: 600px 140px;
+    transform: rotateY(-195.0deg) translateX(210px) translateY(-33.0px) rotateX(200deg);
+}
+
+.card:nth-child(131) {
+    background-position: 600px 140px;
+    transform: rotateY(-558.75deg) translateX(210px) translateY(-66px) rotateX(-90deg);
+}
+
+.card:nth-child(84) {
+    background-position: 500px 280px;
+    transform: rotateY(172.5deg) translateX(210px) translateY(-33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(108) {
+    background-position: 650px 140px;
+    transform: rotateY(-180.0deg) translateX(210px) translateY(-33.0px) rotateX(200deg);
+}
+
+.card:nth-child(132) {
+    background-position: 200px 70px;
+    transform: rotateY(-543.75deg) translateX(210px) translateY(-66px) rotateX(-90deg);
+}
+
+.card:nth-child(85) {
+    background-position: 450px 70px;
+    transform: rotateY(187.5deg) translateX(210px) translateY(-33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(109) {
+    background-position: 600px 210px;
+    transform: rotateY(-165.0deg) translateX(210px) translateY(-33.0px) rotateX(200deg);
+}
+
+.card:nth-child(133) {
+    background-position: 0px 210px;
+    transform: rotateY(-528.75deg) translateX(210px) translateY(-66px) rotateX(-90deg);
+}
+
+.card:nth-child(86) {
+    background-position: 650px 0px;
+    transform: rotateY(202.5deg) translateX(210px) translateY(-33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(110) {
+    background-position: 500px 70px;
+    transform: rotateY(-150.0deg) translateX(210px) translateY(-33.0px) rotateX(200deg);
+}
+
+.card:nth-child(134) {
+    background-position: 300px 70px;
+    transform: rotateY(-513.75deg) translateX(210px) translateY(-66px) rotateX(-90deg);
+}
+
+.card:nth-child(87) {
+    background-position: 500px 140px;
+    transform: rotateY(217.5deg) translateX(210px) translateY(-33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(111) {
+    background-position: 650px 280px;
+    transform: rotateY(-135.0deg) translateX(210px) translateY(-33.0px) rotateX(200deg);
+}
+
+.card:nth-child(135) {
+    background-position: 350px 280px;
+    transform: rotateY(-498.75deg) translateX(210px) translateY(-66px) rotateX(-90deg);
+}
+
+.card:nth-child(88) {
+    background-position: 200px 70px;
+    transform: rotateY(232.5deg) translateX(210px) translateY(-33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(112) {
+    background-position: 650px 0px;
+    transform: rotateY(-120.0deg) translateX(210px) translateY(-33.0px) rotateX(200deg);
+}
+
+.card:nth-child(136) {
+    background-position: 250px 0px;
+    transform: rotateY(-483.75deg) translateX(210px) translateY(-66px) rotateX(-90deg);
+}
+
+.card:nth-child(89) {
+    background-position: 450px 280px;
+    transform: rotateY(247.5deg) translateX(210px) translateY(-33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(113) {
+    background-position: 350px 210px;
+    transform: rotateY(-105.0deg) translateX(210px) translateY(-33.0px) rotateX(200deg);
+}
+
+.card:nth-child(137) {
+    background-position: 300px 70px;
+    transform: rotateY(-468.75deg) translateX(210px) translateY(-66px) rotateX(-90deg);
+}
+
+.card:nth-child(90) {
+    background-position: 0px 140px;
+    transform: rotateY(262.5deg) translateX(210px) translateY(-33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(114) {
+    background-position: 250px 210px;
+    transform: rotateY(-90.0deg) translateX(210px) translateY(-33.0px) rotateX(200deg);
+}
+
+.card:nth-child(138) {
+    background-position: 550px 0px;
+    transform: rotateY(-453.75deg) translateX(210px) translateY(-66px) rotateX(-90deg);
+}
+
+.card:nth-child(91) {
+    background-position: 550px 70px;
+    transform: rotateY(277.5deg) translateX(210px) translateY(-33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(115) {
+    background-position: 200px 210px;
+    transform: rotateY(-75.0deg) translateX(210px) translateY(-33.0px) rotateX(200deg);
+}
+
+.card:nth-child(139) {
+    background-position: 100px 0px;
+    transform: rotateY(-438.75deg) translateX(210px) translateY(-66px) rotateX(-90deg);
+}
+
+.card:nth-child(92) {
+    background-position: 400px 280px;
+    transform: rotateY(292.5deg) translateX(210px) translateY(-33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(116) {
+    background-position: 550px 70px;
+    transform: rotateY(-60.0deg) translateX(210px) translateY(-33.0px) rotateX(200deg);
+}
+
+.card:nth-child(140) {
+    background-position: 500px 140px;
+    transform: rotateY(-423.75deg) translateX(210px) translateY(-66px) rotateX(-90deg);
+}
+
+.card:nth-child(93) {
+    background-position: 150px 0px;
+    transform: rotateY(307.5deg) translateX(210px) translateY(-33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(117) {
+    background-position: 200px 210px;
+    transform: rotateY(-45.0deg) translateX(210px) translateY(-33.0px) rotateX(200deg);
+}
+
+.card:nth-child(141) {
+    background-position: 250px 0px;
+    transform: rotateY(-408.75deg) translateX(210px) translateY(-66px) rotateX(-90deg);
+}
+
+.card:nth-child(94) {
+    background-position: 400px 140px;
+    transform: rotateY(322.5deg) translateX(210px) translateY(-33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(118) {
+    background-position: 50px 70px;
+    transform: rotateY(-30.0deg) translateX(210px) translateY(-33.0px) rotateX(200deg);
+}
+
+.card:nth-child(142) {
+    background-position: 500px 70px;
+    transform: rotateY(-393.75deg) translateX(210px) translateY(-66px) rotateX(-90deg);
+}
+
+.card:nth-child(95) {
+    background-position: 150px 140px;
+    transform: rotateY(337.5deg) translateX(210px) translateY(-33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(119) {
+    background-position: 500px 280px;
+    transform: rotateY(-15.0deg) translateX(210px) translateY(-33.0px) rotateX(200deg);
+}
+
+.card:nth-child(143) {
+    background-position: 350px 70px;
+    transform: rotateY(-378.75deg) translateX(210px) translateY(-66px) rotateX(-90deg);
+}
+
+.card:nth-child(96) {
+    background-position: 0px 0px;
+    transform: rotateY(352.5deg) translateX(210px) translateY(-33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(120) {
+    background-position: 600px 140px;
+    transform: rotateY(0.0deg) translateX(210px) translateY(-33.0px) rotateX(200deg);
+}
+
+.card:nth-child(144) {
+    background-position: 250px 210px;
+    transform: rotateY(-363.75deg) translateX(210px) translateY(-66px) rotateX(-90deg);
+}
+
+.card:nth-child(145) {
+    background-position: 150px 140px;
+    transform: rotateY(15.0deg) translateX(210px) translateY(33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(169) {
+    background-position: 300px 0px;
+    transform: rotateY(-337.5deg) translateX(210px) translateY(33.0px) rotateX(200deg);
+}
+
+.card:nth-child(193) {
+    background-position: 400px 210px;
+    transform: rotateY(-701.25deg) translateX(210px) translateY(0px) rotateX(-90deg);
+}
+
+.card:nth-child(146) {
+    background-position: 650px 280px;
+    transform: rotateY(30.0deg) translateX(210px) translateY(33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(170) {
+    background-position: 150px 0px;
+    transform: rotateY(-322.5deg) translateX(210px) translateY(33.0px) rotateX(200deg);
+}
+
+.card:nth-child(194) {
+    background-position: 650px 0px;
+    transform: rotateY(-686.25deg) translateX(210px) translateY(0px) rotateX(-90deg);
+}
+
+.card:nth-child(147) {
+    background-position: 150px 0px;
+    transform: rotateY(45.0deg) translateX(210px) translateY(33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(171) {
+    background-position: 600px 280px;
+    transform: rotateY(-307.5deg) translateX(210px) translateY(33.0px) rotateX(200deg);
+}
+
+.card:nth-child(195) {
+    background-position: 0px 140px;
+    transform: rotateY(-671.25deg) translateX(210px) translateY(0px) rotateX(-90deg);
+}
+
+.card:nth-child(148) {
+    background-position: 300px 70px;
+    transform: rotateY(60.0deg) translateX(210px) translateY(33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(172) {
+    background-position: 350px 280px;
+    transform: rotateY(-292.5deg) translateX(210px) translateY(33.0px) rotateX(200deg);
+}
+
+.card:nth-child(196) {
+    background-position: 600px 210px;
+    transform: rotateY(-656.25deg) translateX(210px) translateY(0px) rotateX(-90deg);
+}
+
+.card:nth-child(149) {
+    background-position: 350px 0px;
+    transform: rotateY(75.0deg) translateX(210px) translateY(33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(173) {
+    background-position: 250px 210px;
+    transform: rotateY(-277.5deg) translateX(210px) translateY(33.0px) rotateX(200deg);
+}
+
+.card:nth-child(197) {
+    background-position: 250px 0px;
+    transform: rotateY(-641.25deg) translateX(210px) translateY(0px) rotateX(-90deg);
+}
+
+.card:nth-child(150) {
+    background-position: 250px 140px;
+    transform: rotateY(90.0deg) translateX(210px) translateY(33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(174) {
+    background-position: 400px 0px;
+    transform: rotateY(-262.5deg) translateX(210px) translateY(33.0px) rotateX(200deg);
+}
+
+.card:nth-child(198) {
+    background-position: 300px 70px;
+    transform: rotateY(-626.25deg) translateX(210px) translateY(0px) rotateX(-90deg);
+}
+
+.card:nth-child(151) {
+    background-position: 400px 140px;
+    transform: rotateY(105.0deg) translateX(210px) translateY(33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(175) {
+    background-position: 600px 210px;
+    transform: rotateY(-247.5deg) translateX(210px) translateY(33.0px) rotateX(200deg);
+}
+
+.card:nth-child(199) {
+    background-position: 0px 70px;
+    transform: rotateY(-611.25deg) translateX(210px) translateY(0px) rotateX(-90deg);
+}
+
+.card:nth-child(152) {
+    background-position: 250px 280px;
+    transform: rotateY(120.0deg) translateX(210px) translateY(33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(176) {
+    background-position: 650px 280px;
+    transform: rotateY(-232.5deg) translateX(210px) translateY(33.0px) rotateX(200deg);
+}
+
+.card:nth-child(200) {
+    background-position: 200px 0px;
+    transform: rotateY(-596.25deg) translateX(210px) translateY(0px) rotateX(-90deg);
+}
+
+.card:nth-child(153) {
+    background-position: 400px 70px;
+    transform: rotateY(135.0deg) translateX(210px) translateY(33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(177) {
+    background-position: 550px 210px;
+    transform: rotateY(-217.5deg) translateX(210px) translateY(33.0px) rotateX(200deg);
+}
+
+.card:nth-child(201) {
+    background-position: 300px 280px;
+    transform: rotateY(-581.25deg) translateX(210px) translateY(0px) rotateX(-90deg);
+}
+
+.card:nth-child(154) {
+    background-position: 450px 70px;
+    transform: rotateY(150.0deg) translateX(210px) translateY(33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(178) {
+    background-position: 400px 140px;
+    transform: rotateY(-202.5deg) translateX(210px) translateY(33.0px) rotateX(200deg);
+}
+
+.card:nth-child(202) {
+    background-position: 550px 70px;
+    transform: rotateY(-566.25deg) translateX(210px) translateY(0px) rotateX(-90deg);
+}
+
+.card:nth-child(155) {
+    background-position: 650px 280px;
+    transform: rotateY(165.0deg) translateX(210px) translateY(33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(179) {
+    background-position: 500px 210px;
+    transform: rotateY(-187.5deg) translateX(210px) translateY(33.0px) rotateX(200deg);
+}
+
+.card:nth-child(203) {
+    background-position: 150px 0px;
+    transform: rotateY(-551.25deg) translateX(210px) translateY(0px) rotateX(-90deg);
+}
+
+.card:nth-child(156) {
+    background-position: 0px 70px;
+    transform: rotateY(180.0deg) translateX(210px) translateY(33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(180) {
+    background-position: 300px 280px;
+    transform: rotateY(-172.5deg) translateX(210px) translateY(33.0px) rotateX(200deg);
+}
+
+.card:nth-child(204) {
+    background-position: 300px 140px;
+    transform: rotateY(-536.25deg) translateX(210px) translateY(0px) rotateX(-90deg);
+}
+
+.card:nth-child(157) {
+    background-position: 600px 140px;
+    transform: rotateY(195.0deg) translateX(210px) translateY(33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(181) {
+    background-position: 100px 140px;
+    transform: rotateY(-157.5deg) translateX(210px) translateY(33.0px) rotateX(200deg);
+}
+
+.card:nth-child(205) {
+    background-position: 600px 210px;
+    transform: rotateY(-521.25deg) translateX(210px) translateY(0px) rotateX(-90deg);
+}
+
+.card:nth-child(158) {
+    background-position: 200px 280px;
+    transform: rotateY(210.0deg) translateX(210px) translateY(33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(182) {
+    background-position: 150px 140px;
+    transform: rotateY(-142.5deg) translateX(210px) translateY(33.0px) rotateX(200deg);
+}
+
+.card:nth-child(206) {
+    background-position: 400px 140px;
+    transform: rotateY(-506.25deg) translateX(210px) translateY(0px) rotateX(-90deg);
+}
+
+.card:nth-child(159) {
+    background-position: 250px 0px;
+    transform: rotateY(225.0deg) translateX(210px) translateY(33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(183) {
+    background-position: 150px 140px;
+    transform: rotateY(-127.5deg) translateX(210px) translateY(33.0px) rotateX(200deg);
+}
+
+.card:nth-child(207) {
+    background-position: 0px 0px;
+    transform: rotateY(-491.25deg) translateX(210px) translateY(0px) rotateX(-90deg);
+}
+
+.card:nth-child(160) {
+    background-position: 600px 140px;
+    transform: rotateY(240.0deg) translateX(210px) translateY(33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(184) {
+    background-position: 300px 140px;
+    transform: rotateY(-112.5deg) translateX(210px) translateY(33.0px) rotateX(200deg);
+}
+
+.card:nth-child(208) {
+    background-position: 100px 280px;
+    transform: rotateY(-476.25deg) translateX(210px) translateY(0px) rotateX(-90deg);
+}
+
+.card:nth-child(161) {
+    background-position: 550px 280px;
+    transform: rotateY(255.0deg) translateX(210px) translateY(33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(185) {
+    background-position: 50px 70px;
+    transform: rotateY(-97.5deg) translateX(210px) translateY(33.0px) rotateX(200deg);
+}
+
+.card:nth-child(209) {
+    background-position: 350px 140px;
+    transform: rotateY(-461.25deg) translateX(210px) translateY(0px) rotateX(-90deg);
+}
+
+.card:nth-child(162) {
+    background-position: 350px 140px;
+    transform: rotateY(270.0deg) translateX(210px) translateY(33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(186) {
+    background-position: 200px 140px;
+    transform: rotateY(-82.5deg) translateX(210px) translateY(33.0px) rotateX(200deg);
+}
+
+.card:nth-child(210) {
+    background-position: 650px 280px;
+    transform: rotateY(-446.25deg) translateX(210px) translateY(0px) rotateX(-90deg);
+}
+
+.card:nth-child(163) {
+    background-position: 600px 70px;
+    transform: rotateY(285.0deg) translateX(210px) translateY(33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(187) {
+    background-position: 300px 0px;
+    transform: rotateY(-67.5deg) translateX(210px) translateY(33.0px) rotateX(200deg);
+}
+
+.card:nth-child(211) {
+    background-position: 550px 210px;
+    transform: rotateY(-431.25deg) translateX(210px) translateY(0px) rotateX(-90deg);
+}
+
+.card:nth-child(164) {
+    background-position: 400px 0px;
+    transform: rotateY(300.0deg) translateX(210px) translateY(33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(188) {
+    background-position: 50px 140px;
+    transform: rotateY(-52.5deg) translateX(210px) translateY(33.0px) rotateX(200deg);
+}
+
+.card:nth-child(212) {
+    background-position: 300px 280px;
+    transform: rotateY(-416.25deg) translateX(210px) translateY(0px) rotateX(-90deg);
+}
+
+.card:nth-child(165) {
+    background-position: 300px 280px;
+    transform: rotateY(315.0deg) translateX(210px) translateY(33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(189) {
+    background-position: 600px 140px;
+    transform: rotateY(-37.5deg) translateX(210px) translateY(33.0px) rotateX(200deg);
+}
+
+.card:nth-child(213) {
+    background-position: 400px 140px;
+    transform: rotateY(-401.25deg) translateX(210px) translateY(0px) rotateX(-90deg);
+}
+
+.card:nth-child(166) {
+    background-position: 550px 0px;
+    transform: rotateY(330.0deg) translateX(210px) translateY(33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(190) {
+    background-position: 650px 140px;
+    transform: rotateY(-22.5deg) translateX(210px) translateY(33.0px) rotateX(200deg);
+}
+
+.card:nth-child(214) {
+    background-position: 0px 70px;
+    transform: rotateY(-386.25deg) translateX(210px) translateY(0px) rotateX(-90deg);
+}
+
+.card:nth-child(167) {
+    background-position: 200px 70px;
+    transform: rotateY(345.0deg) translateX(210px) translateY(33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(191) {
+    background-position: 500px 0px;
+    transform: rotateY(-7.5deg) translateX(210px) translateY(33.0px) rotateX(200deg);
+}
+
+.card:nth-child(215) {
+    background-position: 650px 210px;
+    transform: rotateY(-371.25deg) translateX(210px) translateY(0px) rotateX(-90deg);
+}
+
+.card:nth-child(168) {
+    background-position: 650px 140px;
+    transform: rotateY(360.0deg) translateX(210px) translateY(33.0px) rotateX(-20deg);
+}
+
+.card:nth-child(192) {
+    background-position: 100px 280px;
+    transform: rotateY(7.5deg) translateX(210px) translateY(33.0px) rotateX(200deg);
+}
+
+.card:nth-child(216) {
+    background-position: 250px 280px;
+    transform: rotateY(-356.25deg) translateX(210px) translateY(0px) rotateX(-90deg);
+}
