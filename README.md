@@ -43,7 +43,7 @@
 
 ## 🎯 Overview
 
-**The Big Brother V4.0** is the ultimate weaponized intelligence gathering platform designed for Red Teams, Investigators, and Cyber Operations. Featuring a brand new **Cyberpunk High-Contrast Glassmorphism Dashboard**, V4.0 introduces massive automated data collection, algorithmic risk-scoring, and identity mapping.
+**The Big Brother V4.0** is the ultimate weaponized intelligence gathering platform designed for Red Teams, Investigators, and Cyber Operations. Featuring a brand new **Dashboard**, V4.0 introduces massive automated data collection, algorithmic risk-scoring, and identity mapping.
 
 ### What's New in V4.0
 - 🟥 **Completely Overhauled Premium UI**
