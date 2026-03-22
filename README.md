@@ -1,4 +1,8 @@
-# 👁️ THE BIG BROTHER V4.0
+<div align="center">
+
+# ** 👁️ THE BIG BROTHER V4.0 👁️ **
+</div>
+<img width="3671" height="1024" alt="banner" src="https://github.com/user-attachments/assets/5ef6b20c-ec6c-4024-ad35-380a73f526b6" />
 
 ```text
 ╔══════════════════════════════════════════════════════════════╗
