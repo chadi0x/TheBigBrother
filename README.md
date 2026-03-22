@@ -42,7 +42,7 @@
 **The Big Brother V4.0** is the ultimate weaponized intelligence gathering platform designed for Red Teams, Investigators, and Cyber Operations. Featuring a brand new **Cyberpunk High-Contrast Glassmorphism Dashboard**, V4.0 introduces massive automated data collection, algorithmic risk-scoring, and identity mapping.
 
 ### What's New in V4.0
-- 🟥 **Completely Overhauled Premium UI**: Dark mode glassmorphism panels, interactive sidebars, and high-tech glitch animations.
+- 🟥 **Completely Overhauled Premium UI**
 - 👻 **Phantom ID**: Next-gen cross-platform identity tracking & social mapping.
 - 🔓 **Breach Vault**: Accelerated global credential leak aggregation.
 - 📡 **Sigint Sweep**: Automated keyword intelligence scanning across the deep web.
@@ -127,7 +127,8 @@ uvicorn the_big_brother.gui.main:app --port 8000
 
 ## 📸 Screenshots
 
-*(Add your new V4.0 Dashboard screenshots here)*
+
+<img width="1675" height="840" alt="Screenshot 2026-03-22 at 18 10 02" src="https://github.com/user-attachments/assets/3e472f12-624a-439c-b304-45a10d09a487" />
 
 ---
 
