@@ -4,8 +4,7 @@
 
 # ◆ 👁️THE BIG BROTHER · V6.0 👁️◆
 <br/>
-
-<img width="3910" height="1088" alt="x" src="https://github.com/user-attachments/assets/94879543-dac9-40c0-ab1c-f0a583513ba1" />
+<img width="2752" height="1536" alt="9fc957b7-4020-4bff-a954-f94057adcb3b" src="https://github.com/user-attachments/assets/5fd9a442-08f7-43da-bd1a-9784c0e4fc96" />
 
 <br/>
 
@@ -198,8 +197,9 @@ uvicorn the_big_brother.gui.main:app --host 0.0.0.0 --port 8000
 ## 📸 SCREENSHOTS
 
 <div align="center">
+<img width="1919" height="976" alt="Screenshot 2026-08-13 at 17 03 06" src="https://github.com/user-attachments/assets/06c422d8-8ebc-4513-890d-71b2f082ccf5" />
 
-<img width="1675" height="840" alt="V6 dashboard" src="https://github.com/user-attachments/assets/548d4613-d53c-4d89-85ea-fb538b5bedff" />
+<img width="1905" height="782" alt="Screenshot 2026-08-13 at 17 36 44" src="https://github.com/user-attachments/assets/5784080c-3e83-4e42-bfb4-ecc4918701f1" />
 
 </div>
 
