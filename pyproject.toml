@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "the-big-brother"
+version = "2.1.0"
+description = "Advanced OSINT Tool for Username Intelligence & Visual Reconnaissance"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "CHADI0X", email = "chadi0x@example.com"}
+]
+keywords = ["osint", "reconnaissance", "username", "reverse-image-search", "intelligence"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+]
+
+dependencies = [
+    "fastapi>=0.104.0",
+    "uvicorn>=0.24.0",
+    "requests>=2.31.0",
+    "beautifulsoup4>=4.12.0",
+    "playwright>=1.40.0",
+    "duckduckgo-search>=3.9.0",
+    "tomli>=2.0.0; python_version<'3.11'",
+    "pandas>=2.0.0",
+    "requests-futures>=1.0.0",
+    "colorama>=0.4.6",
+    "openpyxl>=3.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "black>=23.0.0",
+    "mypy>=1.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/chadi0x/the-big-brother"
+Repository = "https://github.com/chadi0x/the-big-brother"
+Issues = "https://github.com/chadi0x/the-big-brother/issues"
+
+[project.scripts]
+the-big-brother = "the_big_brother.__main__:main"
+
+[tool.setuptools]
+packages = ["the_big_brother"]
+
+[tool.setuptools.package-data]
+the_big_brother = ["py.typed", "gui/**/*", "resources/**/*"]
