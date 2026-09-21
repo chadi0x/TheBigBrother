@@ -4,7 +4,7 @@
 
 # ◆ 👁️THE BIG BROTHER · V7.0 (NEXUS) 👁️◆
 <br/>
-<img width="2752" height="1536" alt="9fc957b7-4020-4bff-a954-f94057adcb3b" src="https://github.com/user-attachments/assets/5fd9a442-08f7-43da-bd1a-9784c0e4fc96" />
+<img width="1584" height="672" alt="7" src="https://github.com/user-attachments/assets/8a22b3cf-14e9-4549-8a90-a823b31cca8d" />
 
 <br/>
 
@@ -188,9 +188,7 @@ uvicorn the_big_brother.gui.main:app --host 0.0.0.0 --port 8000 --reload
 ## 📸 SCREENSHOTS
 
 <div align="center">
-<img width="1919" height="976" alt="Command Center V7.0" src="https://github.com/user-attachments/assets/06c422d8-8ebc-4513-890d-71b2f082ccf5" />
-
-<img width="1905" height="782" alt="Tactical Workspace V7.0" src="https://github.com/user-attachments/assets/5784080c-3e83-4e42-bfb4-ecc4918701f1" />
+<img width="1666" height="854" alt="x" src="https://github.com/user-attachments/assets/d917e140-efa7-4e93-bec3-72a793ec12ce" />
 </div>
 
 ---
@@ -214,8 +212,8 @@ uvicorn the_big_brother.gui.main:app --host 0.0.0.0 --port 8000 --reload
                                       │
                                       ▼
   ┌─────────────────────────────────────────────────────────────────────────┐
-  │                   TACTICAL FRONTEND (FBI GOTHAM HUD)                    │
-  │   .subtool-switcher-bar  ·  Subtool Decks  ·  Nexus Graph Canvas (Cytoscape) │
+  │                   TACTICAL FRONTEND ( GOTHAM HUD)                       │
+  │.subtool-switcher-bar  ·  Subtool Decks · Nexus Graph Canvas (Cytoscape) │
   └─────────────────────────────────────────────────────────────────────────┘
 ```
 
