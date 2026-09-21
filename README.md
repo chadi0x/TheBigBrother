@@ -2,7 +2,7 @@
 
 <br/>
 
-# ◆ 👁️THE BIG BROTHER · V7.0 (NEXUS) 👁️◆
+# 👁️THE BIG BROTHER · V7.0 (NEXUS)👁️
 <br/>
 <img width="1584" height="672" alt="7" src="https://github.com/user-attachments/assets/8a22b3cf-14e9-4549-8a90-a823b31cca8d" />
 
