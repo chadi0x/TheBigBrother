@@ -1,0 +1,23 @@
+services:
+  the-big-brother:
+    build: .
+    container_name: bigbrother_nexus_v7
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - NEXUS_ENV=production
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: bigbrother_nexus_redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped

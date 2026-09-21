@@ -1,0 +1,2416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE BIG BROTHER · V7.0 // OPERATIONAL DISCIPLINE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="3.css">
+
+    <!-- External Core Visualizer Engines (Async Loaded) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js" defer></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+</head>
+<body>
+
+    <!-- WebGL Ambient Backdrop Canvas & Scanlines -->
+    <canvas id="three-canvas"></canvas>
+    <div class="ambient-scanlines"></div>
+
+    <!-- Application Shell -->
+    <div class="war-room-shell">
+
+        <!-- ============================================================
+             TOP DECK: GLOBAL RECON COMMAND RIBBON
+             ============================================================ -->
+        <header class="top-deck-ribbon">
+            <div class="ribbon-left">
+                <div class="brand-identity" onclick="switchTab('tab-home', 'COMMAND CENTER')">
+                    <div class="brand-sigil">
+                        <svg class="nav-icon-svg" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                    </div>
+                    <div class="brand-text-block">
+                        <span class="brand-title">BIG BROTHER <span class="badge cyan">V7.0</span></span>
+                        <span class="brand-version">NEXUS OPERATIONAL CONSOLE</span>
+                    </div>
+                </div>
+
+                <!-- Live Engine Frequency / Pulse Waveform -->
+                <div class="hud-pulse-cluster">
+                    <div class="engine-pulse-dot"></div>
+                    <canvas id="hud-pulse-canvas" width="60" height="18"></canvas>
+                    <span class="mono small-text cyan" id="hud-engine-status">OPERATIONAL // V7.0</span>
+                </div>
+
+                <!-- Quick-Selector Dropdown -->
+                <div class="target-select-wrap">
+                    <select id="target-quick-select" class="target-select-dropdown">
+                        <option value="">[SELECT RECON TARGET]</option>
+                        <option value="APT-41 Operative">APT-41 Operative [STATE-ACTOR]</option>
+                        <option value="Inferno Drainer Sybil">Inferno Drainer Sybil [DEFI-EXFIL]</option>
+                        <option value="Ghost-Runner Blackhat">Ghost-Runner [INFO-STEALER]</option>
+                        <option value="Shadow-AI Lab Leak">Shadow-AI [VECTOR-DISCLOSURE]</option>
+                        <option value="Tor Exit AS208323">Tor Exit Node [AS208323]</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="ribbon-center">
+                <!-- Command Palette Quick Launcher -->
+                <div class="cmd-palette-trigger" onclick="window.cmdPalette.toggle()">
+                    <svg class="nav-icon-svg" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <span>Execute Command / Module...</span>
+                    <span class="kbd-shortcut">CMD+K</span>
+                </div>
+            </div>
+
+            <div class="ribbon-right">
+                <!-- System Health Meters -->
+                <div class="telemetry-meters">
+                    <div class="meter-block">
+                        <span class="meter-label">WORKERS</span>
+                        <span class="meter-value" id="meter-workers">8 POOLS</span>
+                    </div>
+                    <div class="meter-block">
+                        <span class="meter-label">CPU LOAD</span>
+                        <span class="meter-value" id="meter-cpu">14%</span>
+                    </div>
+                    <div class="meter-block">
+                        <span class="meter-label">MEMORY</span>
+                        <span class="meter-value" id="meter-mem">428 MB</span>
+                    </div>
+                    <div class="meter-block">
+                        <span class="meter-label">REDIS</span>
+                        <span class="meter-value emerald" id="meter-redis">ONLINE</span>
+                    </div>
+                    <div class="meter-block">
+                        <span class="meter-label">LATENCY</span>
+                        <span class="meter-value cyan" id="meter-latency">38ms</span>
+                    </div>
+                </div>
+
+                <!-- Tactical Audio FX Button -->
+                <button id="btn-audio-toggle" class="btn-audio-control" title="Toggle Tactical Web Audio Synthesizer">
+                    <svg class="nav-icon-svg" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                    <span class="audio-text">VOL_MUTE</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- ============================================================
+             CENTER DECK: ADAPTIVE 3-PANE TACTICAL LAYOUT
+             ============================================================ -->
+        <div class="bb-app-layout center-deck-container">
+
+            <!-- LEFT NAVIGATION RAIL (COLLAPSIBLE TACTICAL DOCK) -->
+            <aside id="nav-dock" class="bb-col-nav tactical-nav-rail">
+                <div class="nav-dock-header">
+                    <span class="dock-label mono small-text dim">INTELLIGENCE MODULES</span>
+                    <button class="dock-collapse-btn" onclick="toggleNavDock()" title="Toggle dock width">
+                        <svg class="nav-icon-svg" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                    </button>
+                </div>
+
+                <!-- SYNTHESIS & COMMAND -->
+                <div class="nav-category-block">
+                    <div class="nav-cat-title">SYNTHESIS & COMMAND</div>
+                    <ul class="nav-list">
+                        <li class="nav-item nav-tab-btn active" data-tab="tab-home" data-module="HOME" onclick="switchTab('tab-home', 'COMMAND CENTER')">
+                            <div class="nav-left-group">
+                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                                <span class="nav-text">COMMAND CENTER</span>
+                            </div>
+                        </li>
+                        <li class="nav-item nav-tab-btn" data-tab="tab-analyst" data-module="ANALYST" onclick="switchTab('tab-analyst', 'AI ANALYST')">
+                            <div class="nav-left-group">
+                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                <span class="nav-text">AI ANALYST</span>
+                            </div>
+                            <span id="badge-analyst" class="module-badge-tag hide">0</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- ADVANCED LABS -->
+                <div class="nav-category-block">
+                    <div class="nav-cat-title">ADVANCED LABS</div>
+                    <ul class="nav-list">
+                        <li class="nav-item nav-tab-btn" data-tab="tab-chaintracer" data-module="CHAINTRACER" onclick="switchTab('tab-chaintracer', 'CHAIN TRACER')">
+                            <div class="nav-left-group">
+                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                                <span class="nav-text">CHAIN TRACER</span>
+                            </div>
+                            <span class="nav-badge hide" id="badge-chaintracer">0</span>
+                        </li>
+                        <li class="nav-item nav-tab-btn" data-tab="tab-pixelforge" data-module="PIXELFORGE" onclick="switchTab('tab-pixelforge', 'PIXEL FORGE')">
+                            <div class="nav-left-group">
+                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                <span class="nav-text">PIXEL FORGE</span>
+                            </div>
+                            <span class="nav-badge hide" id="badge-pixelforge">0</span>
+                        </li>
+                        <li class="nav-item nav-tab-btn" data-tab="tab-hudsonrock" data-module="HUDSONROCK" onclick="switchTab('tab-hudsonrock', 'HUDSON ROCK')">
+                            <div class="nav-left-group">
+                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                <span class="nav-text">HUDSON ROCK</span>
+                            </div>
+                            <span class="nav-badge hide" id="badge-hudsonrock">0</span>
+                        </li>
+                        <li class="nav-item nav-tab-btn" data-tab="tab-shadowclone" data-module="SHADOWCLONE" onclick="switchTab('tab-shadowclone', 'SHADOW CLONE')">
+                            <div class="nav-left-group">
+                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                <span class="nav-text">SHADOW CLONE</span>
+                            </div>
+                        </li>
+                        <li class="nav-item nav-tab-btn" data-tab="tab-spidercrawl" data-module="SPIDERCRAWL" onclick="switchTab('tab-spidercrawl', 'SPIDER CRAWL')">
+                            <div class="nav-left-group">
+                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                                <span class="nav-text">SPIDER CRAWL</span>
+                            </div>
+                        </li>
+                        <li class="nav-item nav-tab-btn" data-tab="tab-docautopsy" data-module="DOCAUTOPSY" onclick="switchTab('tab-docautopsy', 'DOC AUTOPSY')">
+                            <div class="nav-left-group">
+                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                                <span class="nav-text">DOC AUTOPSY</span>
+                            </div>
+                        </li>
+                        <li class="nav-item nav-tab-btn" data-tab="tab-voiceprint" data-module="VOICEPRINT" onclick="switchTab('tab-voiceprint', 'VOICE PRINT')">
+                            <div class="nav-left-group">
+                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                                <span class="nav-text">VOICE PRINT</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- DEEP RECON -->
+                <div class="nav-category">
+                    <div class="nav-cat-title">DEEP RECON</div>
+                    <ul class="nav-list">
+                        <li class="nav-item nav-tab-btn" data-tab="tab-orbitaleye" data-module="ORBITALEYE" onclick="switchTab('tab-orbitaleye', 'ORBITAL EYE')">
+                            <div class="nav-left-group">
+                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>
+                                <span class="nav-text">ORBITAL EYE</span>
+                            </div>
+                            <span class="nav-badge hide" id="badge-orbitaleye">0</span>
+                        </li>
+                        <li class="nav-item nav-tab-btn" data-tab="tab-evmsol" data-module="EVMSOL" onclick="switchTab('tab-evmsol', 'EVM TRACER')">
+                            <div class="nav-left-group">
+                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                                <span class="nav-text">EVM TRACER</span>
+                            </div>
+                            <span class="nav-badge hide" id="badge-evmsol">0</span>
+                        </li>
+                        <li class="nav-item nav-tab-btn" data-tab="tab-shadowai" data-module="SHADOWAI" onclick="switchTab('tab-shadowai', 'PROMPT LEAK')">
+                            <div class="nav-left-group">
+                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8.01" y2="16"/><line x1="16" y1="16" x2="16.01" y2="16"/></svg>
+                                <span class="nav-text">PROMPT LEAK</span>
+                            </div>
+                        </li>
+                        <li class="nav-item nav-tab-btn" data-tab="tab-telemetry" data-module="TELEMETRY" onclick="switchTab('tab-telemetry', 'TELEMETRY HUNTER')">
+                            <div class="nav-left-group">
+                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
+                                <span class="nav-text">TELEMETRY HUNTER</span>
+                            </div>
+                            <span class="nav-badge hide" id="badge-telemetry">0</span>
+                        </li>
+                        <li class="nav-item nav-tab-btn" data-tab="tab-ransom" data-module="RANSOM" onclick="switchTab('tab-ransom', 'RANSOM DISCLOSE')">
+                            <div class="nav-left-group">
+                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                <span class="nav-text">RANSOM DISCLOSE</span>
+                            </div>
+                            <span class="nav-badge hide" id="badge-ransom">0</span>
+                        </li>
+                        <li class="nav-item nav-tab-btn" data-tab="tab-camvector" data-module="CAMVECTOR" onclick="switchTab('tab-camvector', 'CAM VECTOR')">
+                            <div class="nav-left-group">
+                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                                <span class="nav-text">CAM VECTOR</span>
+                            </div>
+                            <span class="nav-badge hide" id="badge-camvector">0</span>
+                        </li>
+                        <li class="nav-item nav-tab-btn" data-tab="tab-canary" data-module="CANARY" onclick="switchTab('tab-canary', 'CANARY SENTINEL')">
+                            <div class="nav-left-group">
+                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
+                                <span class="nav-text">CANARY SENTINEL</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 04 // PROFILING & IDENTITY -->
+                <div class="nav-category">
+                    <div class="nav-cat-title">IDENTITY & ACCESS</div>
+                    <ul class="nav-list">
+                        <li class="nav-item nav-tab-btn" data-tab="tab-profiler" data-module="PROFILER" onclick="switchTab('tab-profiler', 'TARGET PROFILER')">
+                            <div class="nav-left-group">
+                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                                <span class="nav-text">TARGET PROFILER</span>
+                            </div>
+                            <span class="nav-badge hide" id="badge-profiler">0</span>
+                        </li>
+                        <li class="nav-item nav-tab-btn" data-tab="tab-breach" data-module="BREACH" onclick="switchTab('tab-breach', 'BREACH VAULT')">
+                            <div class="nav-left-group">
+                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+                                <span class="nav-text">BREACH VAULT</span>
+                            </div>
+                            <span class="nav-badge hide" id="badge-breach">0</span>
+                        </li>
+                        <li class="nav-item nav-tab-btn" data-tab="tab-footprint" data-module="FOOTPRINT" onclick="switchTab('tab-footprint', 'DIGITAL FOOTPRINT')">
+                            <div class="nav-left-group">
+                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                <span class="nav-text">DIGITAL FOOTPRINT</span>
+                            </div>
+                        </li>
+                        <li class="nav-item nav-tab-btn" data-tab="tab-mailtracer" data-module="MAILTRACER" onclick="switchTab('tab-mailtracer', 'MAIL TRACER')">
+                            <div class="nav-left-group">
+                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                                <span class="nav-text">MAIL TRACER</span>
+                            </div>
+                        </li>
+                        <li class="nav-item nav-tab-btn" data-tab="tab-codehunter" data-module="CODEHUNTER" onclick="switchTab('tab-codehunter', 'CODE HUNTER')">
+                            <div class="nav-left-group">
+                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                                <span class="nav-text">CODE HUNTER</span>
+                            </div>
+                        </li>
+                        <li class="nav-item nav-tab-btn" data-tab="tab-deepidentity" data-module="DEEPIDENTITY" onclick="switchTab('tab-deepidentity', 'DEEP IDENTITY')">
+                            <div class="nav-left-group">
+                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                <span class="nav-text">DEEP IDENTITY</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 05 // INFRA & GEO -->
+                <div class="nav-category">
+                    <div class="nav-cat-title">INFRASTRUCTURE & GEO</div>
+                    <ul class="nav-list">
+                        <li class="nav-item nav-tab-btn" data-tab="tab-oracle" data-module="ORACLE" onclick="switchTab('tab-oracle', 'DOMAIN ORACLE')">
+                            <div class="nav-left-group">
+                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                                <span class="nav-text">DOMAIN ORACLE</span>
+                            </div>
+                            <span class="nav-badge hide" id="badge-oracle">0</span>
+                        </li>
+                        <li class="nav-item nav-tab-btn" data-tab="tab-network" data-module="NETWORK" onclick="switchTab('tab-network', 'NETWORK MAPPER')">
+                            <div class="nav-left-group">
+                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                                <span class="nav-text">NETWORK MAPPER</span>
+                            </div>
+                        </li>
+                        <li class="nav-item nav-tab-btn" data-tab="tab-geoint" data-module="GEOINT" onclick="switchTab('tab-geoint', 'GEOINT SPY')">
+                            <div class="nav-left-group">
+                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+                                <span class="nav-text">GEOINT SPY</span>
+                            </div>
+                        </li>
+                        <li class="nav-item nav-tab-btn" data-tab="tab-flight" data-module="FLIGHT" onclick="switchTab('tab-flight', 'SKY RADAR')">
+                            <div class="nav-left-group">
+                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><polygon points="12 2 15 8 22 9 17 14 18 21 12 17 6 21 7 14 2 9 9 8 12 2"/></svg>
+                                <span class="nav-text">SKY RADAR</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- CENTER STAGE (THE INVESTIGATION CANVAS) -->
+            <main id="main-stage" class="bb-col-stage center-stage">
+                <!-- Sub-header Breadcrumb & Dual Mode Switcher -->
+                <div class="stage-sub-header">
+                    <div class="deck-title-crumb">
+                        <span class="cyan">SYS://</span>
+                        <span id="deck-current-title">COMMAND CENTER</span>
+                    </div>
+
+                    <!-- Dual-Mode View Switcher -->
+                    <div class="mode-toggle-group">
+                        <button id="btn-mode-grid" class="btn-mode-tab active">
+                            <svg class="nav-icon-svg" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                            <span>TACTICAL GRID</span>
+                        </button>
+                        <button id="btn-mode-nexus" class="btn-mode-tab" style="display: none;">
+                            <svg class="nav-icon-svg" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                            <span>NEXUS GRAPH CANVAS</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Canvas Body -->
+                <div class="canvas-body">
+
+                    <!-- MODE 1: TACTICAL GRID CANVAS -->
+                    <div id="canvas-tactical-grid">
+
+                        <!-- TAB: HOME / COMMAND CENTER -->
+                        <div id="tab-home" class="tool-panel module-panel active">
+                            <!-- Sub-Tool Switcher Bar -->
+                            <div class="subtool-switcher-bar">
+                                <span class="subtool-label">COMMAND CENTER:</span>
+                                <button class="subtool-btn active" data-subtool="1" onclick="switchSubTool('tab-home', 1)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 1] LIVE TELEMETRY &amp; INTEL WIRE</span>
+                                </button>
+                                <button class="subtool-btn" data-subtool="2" onclick="switchSubTool('tab-home', 2); if(typeof fetchIncidentTracker === 'function') fetchIncidentTracker();">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 2] DEFCON ALERT &amp; GLOBAL INCIDENT TRACKER</span>
+                                </button>
+                            </div>
+
+                            <!-- SUBTOOL 1: PRIMARY DECK -->
+                            <div class="subtool-deck subtool-deck-primary">
+                                <!-- Live Global Threat & Market Ticker -->
+                                <div class="war-room-ticker" id="command-center-ticker">
+                                <div class="ticker-badge">
+                                    <span class="engine-pulse-dot" style="display:inline-block; width:6px; height:6px; background:#00F0FF; border-radius:50%; margin-right:4px;"></span>
+                                    <span>INTEL WIRE</span>
+                                </div>
+                                <div class="ticker-content" id="ticker-items-container">
+                                    <span class="ticker-item"><span class="urgency-tag advisory">[INITIALIZING]</span> Connecting to live telemetry &amp; threat intelligence feeds...</span>
+                                </div>
+                            </div>
+
+                            <!-- Live Crypto & Gas Sparkline Grid -->
+                            <div class="sparkline-grid">
+                                <div class="sparkline-card" id="spark-card-btc">
+                                    <div class="sparkline-header">
+                                        <span class="sparkline-symbol">BTC // BITCOIN</span>
+                                        <span class="sparkline-change" id="spark-change-btc">--</span>
+                                    </div>
+                                    <div class="sparkline-price" id="spark-price-btc">$--</div>
+                                    <svg class="sparkline-svg" id="spark-svg-btc" viewBox="0 0 120 32" preserveAspectRatio="none">
+                                        <path d="M0,25 L20,22 L40,24 L60,18 L80,12 L100,15 L120,8" fill="none" stroke="#00F0FF" stroke-width="1.8"/>
+                                    </svg>
+                                </div>
+                                <div class="sparkline-card" id="spark-card-eth">
+                                    <div class="sparkline-header">
+                                        <span class="sparkline-symbol">ETH // ETHEREUM</span>
+                                        <span class="sparkline-change" id="spark-change-eth">--</span>
+                                    </div>
+                                    <div class="sparkline-price" id="spark-price-eth">$--</div>
+                                    <svg class="sparkline-svg" id="spark-svg-eth" viewBox="0 0 120 32" preserveAspectRatio="none">
+                                        <path d="M0,20 L25,18 L50,22 L75,14 L100,10 L120,6" fill="none" stroke="#8B5CF6" stroke-width="1.8"/>
+                                    </svg>
+                                </div>
+                                <div class="sparkline-card" id="spark-card-sol">
+                                    <div class="sparkline-header">
+                                        <span class="sparkline-symbol">SOL // SOLANA</span>
+                                        <span class="sparkline-change" id="spark-change-sol">--</span>
+                                    </div>
+                                    <div class="sparkline-price" id="spark-price-sol">$--</div>
+                                    <svg class="sparkline-svg" id="spark-svg-sol" viewBox="0 0 120 32" preserveAspectRatio="none">
+                                        <path d="M0,26 L30,20 L60,24 L90,12 L120,9" fill="none" stroke="#10B981" stroke-width="1.8"/>
+                                    </svg>
+                                </div>
+                                <div class="sparkline-card" id="spark-card-trx">
+                                    <div class="sparkline-header">
+                                        <span class="sparkline-symbol">TRX // TRON (USDT)</span>
+                                        <span class="sparkline-change" id="spark-change-trx">--</span>
+                                    </div>
+                                    <div class="sparkline-price" id="spark-price-trx">$--</div>
+                                    <svg class="sparkline-svg" id="spark-svg-trx" viewBox="0 0 120 32" preserveAspectRatio="none">
+                                        <path d="M0,18 L30,16 L60,19 L90,14 L120,12" fill="none" stroke="#F59E0B" stroke-width="1.8"/>
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <div class="glass-card active-border">
+                                <div class="card-header">
+                                    <div>
+                                        <span class="telemetry-label">TACTICAL OPS CONSOLE</span>
+                                        <h2 class="card-title">BIG BROTHER V7.0 // PRODUCTION FORENSIC WAR-ROOM</h2>
+                                    </div>
+                                    <span class="badge emerald" id="cc-gas-badge">GAS: -- GWEI // LIVE RPC</span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="telemetry-banner">
+                                        <span>GROUND-TRUTH DIRECTIVE: ZERO-MOCK ENGINE CONNECTED TO LIVE RPCs, PUBLIC EXPLORERS &amp; SATELLITE PASSES.</span>
+                                        <strong id="cc-status-text">STATUS: NOMINAL</strong>
+                                    </div>
+                                    <div class="metric-row">
+                                        <div class="metric-pill">
+                                            <span>HOST CPU LOAD</span>
+                                            <strong class="cyan" id="cc-metric-cpu">--%</strong>
+                                        </div>
+                                        <div class="metric-pill">
+                                            <span>RAM ALLOCATION</span>
+                                            <strong class="emerald" id="cc-metric-ram">-- MB</strong>
+                                        </div>
+                                        <div class="metric-pill">
+                                            <span>NETWORK SOCKETS</span>
+                                            <strong class="violet" id="cc-metric-sockets">-- ESTABLISHED</strong>
+                                        </div>
+                                        <div class="metric-pill">
+                                            <span>SYSTEM UPTIME</span>
+                                            <strong class="amber" id="cc-metric-uptime">--</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Live Intel Feed Deck: Attacks & Exploits + Tech & Infrastructure -->
+                            <div class="intel-feed-split-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 16px; margin-top: 16px; margin-bottom: 16px;">
+                                <!-- Attacks & Exploits Panel -->
+                                <div class="glass-card tactical-feed-card" style="border-left: 3px solid #FF2A55;">
+                                    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                                        <div>
+                                            <span class="telemetry-label" style="color:#FF2A55;">LIVE EXPLOIT STREAM</span>
+                                            <h3 class="card-title" style="font-size:14px; margin:0;"><span class="badge critical" style="background:rgba(255,42,85,0.2); color:#FF2A55; margin-right:6px;">ATTACKS &amp; ZERO-DAYS</span> THREAT ADVISORIES</h3>
+                                        </div>
+                                        <button class="btn-tactical-xs" onclick="window.refreshAttackNews()" title="Refresh Feed">&#x21bb; REFRESH</button>
+                                    </div>
+                                    <div class="card-body" id="cc-attacks-container" style="max-height: 280px; overflow-y: auto; padding: 12px;">
+                                        <div class="text-dim mono small-text"><span class="spinner-pulse"></span> Streaming real-time attack &amp; exploit advisories...</div>
+                                    </div>
+                                </div>
+
+                                <!-- Tech & Infrastructure Panel -->
+                                <div class="glass-card tactical-feed-card" style="border-left: 3px solid #00F0FF;">
+                                    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                                        <div>
+                                            <span class="telemetry-label" style="color:#00F0FF;">INFRASTRUCTURE INTEL</span>
+                                            <h3 class="card-title" style="font-size:14px; margin:0;"><span class="badge cyan" style="margin-right:6px;">TECH &amp; SYSTEMS</span> ARCHITECTURE WIRE</h3>
+                                        </div>
+                                        <button class="btn-tactical-xs" onclick="window.refreshTechNews()" title="Refresh Feed">&#x21bb; REFRESH</button>
+                                    </div>
+                                    <div class="card-body" id="cc-tech-container" style="max-height: 280px; overflow-y: auto; padding: 12px;">
+                                        <div class="text-dim mono small-text"><span class="spinner-pulse"></span> Streaming technology &amp; systems intelligence...</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="launchpad-grid">
+                                <div class="launchpad-card" onclick="switchTab('tab-analyst', 'AI ANALYST')">
+                                    <div class="card-header">
+                                        <h3 class="card-title">AI ANALYST CORTEX</h3>
+                                        <span class="badge violet">V7 CORTEX</span>
+                                    </div>
+                                    <p class="dim small-text">Autonomous synthesis cortex correlating breach logs, threat vectors, and NetworkX topological graphs.</p>
+                                    <span class="mono small-text cyan" style="margin-top:8px;">LAUNCH INVESTIGATION &rarr;</span>
+                                </div>
+                                <div class="launchpad-card" onclick="switchTab('tab-chaintracer', 'CHAIN TRACER')">
+                                    <div class="card-header">
+                                        <h3 class="card-title">CHAIN TRACER</h3>
+                                        <span class="badge cyan">BLK-INTEL</span>
+                                    </div>
+                                    <p class="dim small-text">Multi-chain ledger forensic audit across Bitcoin, Ethereum, Solana, and Tron TRC-20 with mixer detection.</p>
+                                    <span class="mono small-text emerald" style="margin-top:8px;">TRACE ON-CHAIN &rarr;</span>
+                                </div>
+                                <div class="launchpad-card" onclick="switchTab('tab-orbitaleye', 'ORBITAL EYE')">
+                                    <div class="card-header">
+                                        <h3 class="card-title">ORBITAL EYE</h3>
+                                        <span class="badge emerald">SAT-RECON</span>
+                                    </div>
+                                    <p class="dim small-text">High-resolution GEOINT reconnaissance, solar illumination angles, Sentinel-2 passes, and ADS-B airspace.</p>
+                                    <span class="mono small-text violet" style="margin-top:8px;">ACQUIRE TARGET &rarr;</span>
+                                </div>
+                            </div>
+                            </div>
+                            <!-- END SUBTOOL 1 -->
+
+                            <!-- SUBTOOL 2: COMPANION DECK (INCIDENT TRACKER & DEFCON ALERT) -->
+                            <div class="subtool-deck subtool-deck-companion hide" id="incident-tracker-companion-deck">
+                                <div class="glass-card active-border" style="margin-bottom: 16px;">
+                                    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                                        <div>
+                                            <span class="telemetry-label">NATIONAL &amp; GLOBAL INFRASTRUCTURE INTELLIGENCE</span>
+                                            <h2 class="card-title" id="defcon-title-header" style="color: #FFB800;">DEFCON 3 // ELEVATED WAR-ROOM READINESS</h2>
+                                        </div>
+                                        <div style="display:flex; gap:10px; align-items:center;">
+                                            <button class="btn-tactical" onclick="fetchIncidentTracker()" style="padding: 4px 12px; font-size:11px;">
+                                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                                                <span>REFRESH TELEMETRY</span>
+                                            </button>
+                                            <span class="badge hazard" id="defcon-badge-level">DEFCON 3</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="mono dim" id="defcon-directive-text" style="font-size:12px; margin-bottom: 14px; border-left: 2px solid var(--accent-cyan); padding-left: 10px;">
+                                            Connecting to CISA Known Exploited Vulnerabilities catalog, undersea fiber chokepoints, and hyperscaler latency monitors...
+                                        </p>
+                                        <div class="grid-3col" id="incident-telemetry-summary" style="gap:12px; margin-bottom:14px;">
+                                            <div class="mini-stat-card"><span class="mini-stat-label">CISA KEVs TRACKED</span><span class="mini-stat-val cyan" id="stat-kev-count">--</span></div>
+                                            <div class="mini-stat-card"><span class="mini-stat-label">RANSOMWARE CVEs</span><span class="mini-stat-val red" id="stat-ransom-count">--</span></div>
+                                            <div class="mini-stat-card"><span class="mini-stat-label">FIBER CHOKEPOINTS</span><span class="mini-stat-val amber" id="stat-cable-count">--</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- CISA KEV Live Table -->
+                                <div class="glass-card" style="margin-bottom: 16px;">
+                                    <div class="card-header">
+                                        <span class="telemetry-label">CISA KEV CATALOG // ACTUALLY EXPLOITED IN THE WILD</span>
+                                        <h3 class="card-title">Live Zero-Day &amp; Exploited Vulnerability Feed</h3>
+                                    </div>
+                                    <div class="card-body" style="padding:0; overflow-x:auto;">
+                                        <div id="cisa-kev-table-container">
+                                            <div style="padding:20px; text-align:center;" class="mono dim">Click REFRESH TELEMETRY to query real-time CISA KEV catalog.</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Undersea Cables & Hyperscalers 2-Col Grid -->
+                                <div class="grid-2col" style="gap:16px;">
+                                    <div class="glass-card">
+                                        <div class="card-header">
+                                            <span class="telemetry-label">STRATEGIC CHOKEPOINTS</span>
+                                            <h3 class="card-title">Undersea Fiber-Optic Cable Incidents</h3>
+                                        </div>
+                                        <div class="card-body" id="undersea-cables-container" style="max-height: 380px; overflow-y: auto;">
+                                            <div class="mono dim small-text">Awaiting undersea cable telemetry...</div>
+                                        </div>
+                                    </div>
+                                    <div class="glass-card">
+                                        <div class="card-header">
+                                            <span class="telemetry-label">CLOUD HYPERSCALERS &amp; BGP</span>
+                                            <h3 class="card-title">Global Cloud &amp; Routing Health</h3>
+                                        </div>
+                                        <div class="card-body" id="hyperscalers-bgp-container" style="max-height: 380px; overflow-y: auto;">
+                                            <div class="mono dim small-text">Pinging hyperscaler nodes...</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: AI ANALYST -->
+                        <div id="tab-analyst" class="tool-panel module-panel">
+                            <!-- Sub-Tool Switcher Bar -->
+                            <div class="subtool-switcher-bar">
+                                <span class="subtool-label">ANALYST ENGINE:</span>
+                                <button class="subtool-btn active" data-subtool="1" onclick="switchSubTool('tab-analyst', 1)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 1] AUTONOMOUS THREAT CORTEX</span>
+                                </button>
+                                <button class="subtool-btn" data-subtool="2" onclick="switchSubTool('tab-analyst', 2); if(typeof runPlaybookSimulator === 'function' && !document.getElementById('playbook-results').innerHTML.trim()) runPlaybookSimulator();">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 2] MITRE ATT&amp;CK KILL-CHAIN &amp; PLAYBOOK SIMULATOR</span>
+                                </button>
+                            </div>
+
+                            <!-- SUBTOOL 1: PRIMARY DECK -->
+                            <div class="subtool-deck subtool-deck-primary">
+                                <div class="glass-card active-border">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">SYNTHESIS CORTEX</span>
+                                            <h2 class="card-title">AI Analyst Multi-Agent Correlation</h2>
+                                        </div>
+                                        <span class="badge violet">V7 CORTEX</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="grid-2col">
+                                            <div class="form-group">
+                                                <label class="telemetry-label">TARGET IDENTIFIER / INDICATOR</label>
+                                                <input type="text" id="analyst-target" class="input-tactical" placeholder="Target username, email, IP, wallet, or domain...">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="telemetry-label">CORRELATION MODE</label>
+                                                <select id="analyst-mode" class="input-tactical">
+                                                    <option value="auto">Autonomous Multi-Agent Mode</option>
+                                                    <option value="deep">Deep Forensic Correlation</option>
+                                                    <option value="passive">Passive Footprint Only</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <button class="btn-tactical" onclick="runAnalyst()">
+                                            <svg class="nav-icon-svg" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                            <span>EXECUTE CORTEX CORRELATION</span>
+                                        </button>
+                                        <span class="mono small-text dim" id="analyst-status" style="margin-left:14px;">STANDBY // READY FOR QUERY</span>
+                                    </div>
+                                </div>
+                                <div id="analyst-results"></div>
+                            </div>
+
+                            <!-- SUBTOOL 2: COMPANION DECK (MITRE ATT&CK PLAYBOOK SIMULATOR) -->
+                            <div class="subtool-deck subtool-deck-companion hide" id="analyst-companion-deck">
+                                <div class="glass-card active-border">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">ADVERSARY PROFILE EMULATOR</span>
+                                            <h2 class="card-title">Autonomous MITRE ATT&amp;CK Kill-Chain &amp; Playbook Simulator</h2>
+                                        </div>
+                                        <span class="badge violet">TACTICAL SIM</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="grid-2col">
+                                            <div class="form-group">
+                                                <label class="telemetry-label">SELECT OR INPUT THREAT ACTOR / CAMPAIGN</label>
+                                                <select id="playbook-adversary-select" class="input-tactical" onchange="document.getElementById('playbook-adversary-input').value = this.value">
+                                                    <option value="apt29">APT29 // Cozy Bear // Nobelium (SVR Espionage)</option>
+                                                    <option value="lazarus">Lazarus Group // Hidden Cobra (DPRK Financial / Crypto)</option>
+                                                    <option value="volt_typhoon">Volt Typhoon // Bronze Silhouette (Critical Infrastructure)</option>
+                                                    <option value="lockbit">LockBit 3.0 // Black Cartel (Ransomware Syndicate)</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="telemetry-label">CUSTOM THREAT INDICATOR / KEYWORD</label>
+                                                <input type="text" id="playbook-adversary-input" class="input-tactical" placeholder="e.g. APT29, Lazarus, LockBit, Volt Typhoon..." value="apt29">
+                                            </div>
+                                        </div>
+                                        <button class="btn-tactical" onclick="runPlaybookSimulator()">
+                                            <svg class="nav-icon-svg" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                            <span>GENERATE ATT&amp;CK KILL-CHAIN &amp; SIGMA RULE</span>
+                                        </button>
+                                        <span class="mono small-text dim" id="playbook-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="playbook-results"></div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: CHAIN TRACER -->
+                        <div id="tab-chaintracer" class="tool-panel module-panel">
+                            <!-- Sub-Tool Switcher Bar -->
+                            <div class="subtool-switcher-bar">
+                                <span class="subtool-label">CRYPTO ENGINE:</span>
+                                <button class="subtool-btn active" data-subtool="1" onclick="switchSubTool('tab-chaintracer', 1)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 1] MULTI-CHAIN WALLET TRACER</span>
+                                </button>
+                                <button class="subtool-btn" data-subtool="2" onclick="switchSubTool('tab-chaintracer', 2)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 2] TOKEN DRAINER &amp; HONEYPOT AUDITOR</span>
+                                </button>
+                            </div>
+
+                            <!-- SUBTOOL 1: PRIMARY DECK -->
+                            <div class="subtool-deck subtool-deck-primary">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">FINANCIAL INTELLIGENCE</span>
+                                            <h2 class="card-title">Cross-Chain Live RPC Heuristic Tracer</h2>
+                                        </div>
+                                        <span class="badge cyan">BLK-INTEL</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="grid-2col">
+                                            <div class="form-group">
+                                                <label class="telemetry-label">WALLET / CONTRACT ADDRESS</label>
+                                                <input type="text" id="chaintracer-address" class="input-tactical" placeholder="e.g. 0x28c6c06298d514db089934071355e5743bf21d60, 1A1zP1eP5Q..., or T...">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="telemetry-label">LEDGER ASSET</label>
+                                                <select id="chaintracer-coin" class="input-tactical">
+                                                    <option value="auto">Auto-Detect Blockchain Format</option>
+                                                    <option value="btc">Bitcoin Mainnet (Satoshis conversion)</option>
+                                                    <option value="eth">Ethereum / EVM (Cloudflare RPC)</option>
+                                                    <option value="sol">Solana Mainnet-Beta (Lamports conversion)</option>
+                                                    <option value="trx">Tron Mainnet (TRX / TRC-20 USDT)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <button class="btn-tactical" onclick="runChainTracer()">
+                                            <svg class="nav-icon-svg" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                            <span>QUERY LIVE LEDGER RPC</span>
+                                        </button>
+                                        <span class="mono small-text dim" id="chaintracer-status" style="margin-left:14px;">READY FOR ON-CHAIN QUERY</span>
+                                    </div>
+                                </div>
+                                <div id="chaintracer-results"></div>
+                            </div>
+
+                            <!-- SUBTOOL 2: COMPANION DECK (HONEYPOT & TOKEN DRAINER AUDITOR) -->
+                            <div class="subtool-deck subtool-deck-companion hide" id="chaintracer-companion-deck">
+                                <div class="glass-card active-border">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">SMART CONTRACT FORENSICS</span>
+                                            <h2 class="card-title">Token Contract Drainer &amp; Honeypot Auditor</h2>
+                                        </div>
+                                        <span class="badge hazard">RUG-AUDIT</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="grid-2col">
+                                            <div class="form-group">
+                                                <label class="telemetry-label">TOKEN CONTRACT ADDRESS (EVM)</label>
+                                                <input type="text" id="honeypot-address" class="input-tactical" placeholder="e.g. 0xdac17f958d2ee523a2206206994597c13d831ec7">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="telemetry-label">NETWORK / BLOCKCHAIN</label>
+                                                <select id="honeypot-chain" class="input-tactical">
+                                                    <option value="1">Ethereum Mainnet (ChainID 1)</option>
+                                                    <option value="56">BNB Smart Chain (ChainID 56)</option>
+                                                    <option value="137">Polygon PoS (ChainID 137)</option>
+                                                    <option value="42161">Arbitrum One (ChainID 42161)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <button class="btn-tactical" onclick="runHoneypotAuditor()">
+                                            <svg class="nav-icon-svg" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                            <span>AUDIT SMART CONTRACT DRAINER RISKS</span>
+                                        </button>
+                                        <span class="mono small-text dim" id="honeypot-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="honeypot-results"></div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: PIXEL FORGE (ELA & STEGANOGRAPHY) -->
+                        <div id="tab-pixelforge" class="tool-panel module-panel">
+                            <!-- Sub-Tool Switcher Bar -->
+                            <div class="subtool-switcher-bar">
+                                <span class="subtool-label">IMAGE ENGINE:</span>
+                                <button class="subtool-btn active" data-subtool="1" onclick="switchSubTool('tab-pixelforge', 1)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 1] IMAGE FORENSICS &amp; ELA</span>
+                                </button>
+                                <button class="subtool-btn" data-subtool="2" onclick="switchSubTool('tab-pixelforge', 2)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 2] STEG-HUNTER &amp; ARCHIVE CARVER</span>
+                                </button>
+                            </div>
+
+                            <!-- SUBTOOL 1: PRIMARY DECK -->
+                            <div class="subtool-deck subtool-deck-primary">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">FORENSIC LABS</span>
+                                            <h2 class="card-title">Pixel Forge Tamper &amp; Error Level Analysis (ELA)</h2>
+                                        </div>
+                                        <span class="badge cyan">MEDIA-ELA</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label class="telemetry-label">UPLOAD IMAGE PAYLOAD FOR DISCRETE COSINE TRANSFORM &amp; RESIDUAL DIFF</label>
+                                            <input type="file" id="pixelforge-file" class="input-tactical" accept="image/*" onchange="handlePixelForgeUpload(this.files[0])">
+                                        </div>
+                                        <span class="mono small-text dim" id="pixelforge-status">AWAITING IMAGE PAYLOAD</span>
+                                    </div>
+                                </div>
+                                <div id="pixelforge-results"></div>
+                            </div>
+
+                            <!-- SUBTOOL 2: COMPANION DECK (STEG-HUNTER & LSB BITPLANE EXTRACTOR) -->
+                            <div class="subtool-deck subtool-deck-companion hide" id="pixelforge-companion-deck">
+                                <div class="glass-card active-border">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">STEGANOGRAPHY &amp; BINARY CARVING</span>
+                                            <h2 class="card-title">Steg-Hunter &amp; LSB Bitplane Extractor</h2>
+                                        </div>
+                                        <span class="badge violet">CARVER-STEG</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label class="telemetry-label">UPLOAD SUSPICIOUS IMAGE TO DECOMPOSE BITPLANES &amp; CARVE EMBEDDED ARCHIVES (ZIP/RAR/7z/PDF/EXE)</label>
+                                            <input type="file" id="steghunter-file" class="input-tactical" accept="image/*,.gif,.png,.jpg,.jpeg,.bmp" onchange="handleStegHunterUpload(this.files[0])">
+                                        </div>
+                                        <span class="mono small-text dim" id="steghunter-status">AWAITING IMAGE PAYLOAD</span>
+                                    </div>
+                                </div>
+                                <div id="steghunter-results"></div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: HUDSON ROCK -->
+                        <div id="tab-hudsonrock" class="tool-panel module-panel">
+                            <!-- Sub-Tool Switcher Bar -->
+                            <div class="subtool-switcher-bar">
+                                <span class="subtool-label">HUDSON ROCK:</span>
+                                <button class="subtool-btn active" data-subtool="1" onclick="switchSubTool('tab-hudsonrock', 1)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 1] CAVALIER INFOSTEALER PROBE</span>
+                                </button>
+                                <button class="subtool-btn" data-subtool="2" onclick="switchSubTool('tab-hudsonrock', 2)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 2] RAW STEALER LOG &amp; ARCHIVE PARSER</span>
+                                </button>
+                            </div>
+
+                            <!-- SUBTOOL 1: PRIMARY DECK -->
+                            <div class="subtool-deck subtool-deck-primary">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">THREAT SURVEILLANCE</span>
+                                            <h2 class="card-title">Hudson Rock Cavalier Infostealer Surveillance</h2>
+                                        </div>
+                                        <span class="badge hazard">INFO-STEAL</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="grid-2col">
+                                            <div class="form-group">
+                                                <label class="telemetry-label">QUERY DOMAIN, EMAIL, OR IP</label>
+                                                <input type="text" id="hudsonrock-query" class="input-tactical" placeholder="target.com or user@target.com">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="telemetry-label">TARGET TYPE</label>
+                                                <select id="hudsonrock-type" class="input-tactical">
+                                                    <option value="auto">Auto-Detect Type</option>
+                                                    <option value="domain">Domain / Organization</option>
+                                                    <option value="email">Email Address</option>
+                                                    <option value="username">Username Search</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <button class="btn-tactical" onclick="runHudsonRock()">
+                                            <svg class="nav-icon-svg" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                            <span>SCAN INFOSTEALER LOGS</span>
+                                        </button>
+                                        <span class="mono small-text dim" id="hudsonrock-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="hudsonrock-results"></div>
+                            </div>
+
+                            <!-- SUBTOOL 2: COMPANION POWER ENGINE -->
+                            <div class="subtool-deck subtool-deck-companion hide">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">MALWARE LOG TRIAGE</span>
+                                            <h2 class="card-title" style="color:#C084FC;">Raw Stealer Log &amp; Session Archive Parser</h2>
+                                        </div>
+                                        <span class="badge violet">REDLINE / VIDAR / LUMMA</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label class="telemetry-label">PASTE RAW INFOSTEALER LOG TEXT (PASSWORDS.TXT / USER.TXT / SYSTEM INFO)</label>
+                                            <textarea id="stealer-raw-input" class="input-tactical" rows="5" placeholder="URL: https://...\nUsername: victim\nPassword: secret\nHWID: ..."></textarea>
+                                        </div>
+                                        <div style="display:flex; gap:10px; align-items:center;">
+                                            <button class="btn-tactical" onclick="runStealerParser()">PARSE RAW INFOSTEALER DUMP</button>
+                                            <label class="btn-tactical-xs cyan" style="cursor:pointer; margin-bottom:0;">
+                                                UPLOAD LOG FILE <input type="file" style="display:none;" onchange="handleStealerFileUpload(this.files[0])">
+                                            </label>
+                                            <span class="mono small-text dim" id="stealerparser-status" style="margin-left:14px;">READY FOR STEALER PAYLOAD</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="stealerparser-results"></div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: SHADOW CLONE -->
+                        <div id="tab-shadowclone" class="tool-panel module-panel">
+                            <!-- Sub-Tool Switcher Bar -->
+                            <div class="subtool-switcher-bar">
+                                <span class="subtool-label">SHADOW CLONE:</span>
+                                <button class="subtool-btn active" data-subtool="1" onclick="switchSubTool('tab-shadowclone', 1)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 1] MULTI-PLATFORM ENCLAVE PROFILER</span>
+                                </button>
+                                <button class="subtool-btn" data-subtool="2" onclick="switchSubTool('tab-shadowclone', 2)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 2] LINGUISTIC STYLOMETRY ANALYZER</span>
+                                </button>
+                            </div>
+
+                            <!-- SUBTOOL 1: PRIMARY DECK -->
+                            <div class="subtool-deck subtool-deck-primary">
+                                <div class="glass-card">
+                                    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                                        <div>
+                                            <h2 class="card-title" style="margin:0;">SHADOW_CLONE // ADVANCED USERNAME RECON &amp; PERSONA DOSSIER</h2>
+                                            <span class="telemetry-label cyan mono" style="font-size:11px;">MULTI-PLATFORM ENCLAVE PROFILER · IMPERSONATOR DETECTOR</span>
+                                        </div>
+                                        <span class="badge critical">DEEP RECON V7.0</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="grid-2col">
+                                            <div class="form-group" style="margin-bottom:10px;">
+                                                <input type="text" id="shadowclone-user" class="input-tactical" placeholder="Target username (e.g. torvalds, satoshi)...">
+                                            </div>
+                                            <div class="form-group" style="display:flex; align-items:center; gap:16px; margin-bottom:10px;">
+                                                <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:12px; font-family:monospace;" class="cyan">
+                                                    <input type="checkbox" id="shadowclone-deep-recon" checked style="accent-color:#00F0FF;"> DEEP METADATA HARVESTING
+                                                </label>
+                                                <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:12px; font-family:monospace;" class="dim">
+                                                    <input type="checkbox" id="shadowclone-probe-clones" checked style="accent-color:#FFB800;"> IMPERSONATOR PROBE
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div style="display:flex; flex-wrap:wrap; align-items:center; gap:10px;">
+                                            <button class="btn-tactical" onclick="runShadowClone()">EXECUTE RECON &amp; BUILD DOSSIER</button>
+                                            <button class="btn-tactical-xs cyan" id="btn-download-shadow-report" onclick="window.downloadShadowCloneReport()" style="display:none;">📄 DOWNLOAD DOSSIER REPORT</button>
+                                            <button class="btn-tactical-xs" id="btn-export-shadow-json" onclick="window.exportShadowCloneJson()" style="display:none;">💾 EXPORT RAW JSON</button>
+                                            <span class="mono small-text dim" id="shadowclone-status" style="margin-left:auto;">READY</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="shadowclone-results"></div>
+                            </div>
+
+                            <!-- SUBTOOL 2: COMPANION POWER ENGINE -->
+                            <div class="subtool-deck subtool-deck-companion hide">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">FORENSIC LINGUISTICS &amp; AUTHOR ATTRIBUTION</span>
+                                            <h2 class="card-title" style="color:#C084FC;">Linguistic Stylometry &amp; Authorship Profiler</h2>
+                                        </div>
+                                        <span class="badge violet">NLP-STYLOMETRY</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="grid-2col" style="gap:14px;">
+                                            <div class="form-group">
+                                                <label class="telemetry-label">SAMPLE A (TARGET WRITING / BIO / POST)</label>
+                                                <textarea id="stylometry-sample-a" class="input-tactical" rows="5" placeholder="Paste target's forum post, bio, or commit messages..."></textarea>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="telemetry-label">SAMPLE B (SUSPECT PROFILE TEXT / COMPARISON SAMPLE)</label>
+                                                <textarea id="stylometry-sample-b" class="input-tactical" rows="5" placeholder="Paste comparison sample or leave empty for single profile..."></textarea>
+                                            </div>
+                                        </div>
+                                        <button class="btn-tactical" onclick="runStylometryAnalyzer()">COMPUTE AUTHORSHIP ATTRIBUTION</button>
+                                        <span class="mono small-text dim" id="stylometry-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="stylometry-results"></div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: SPIDER CRAWL -->
+                        <div id="tab-spidercrawl" class="tool-panel module-panel">
+                            <!-- Sub-Tool Switcher Bar -->
+                            <div class="subtool-switcher-bar">
+                                <span class="subtool-label">SPIDER CRAWL:</span>
+                                <button class="subtool-btn active" data-subtool="1" onclick="switchSubTool('tab-spidercrawl', 1)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 1] WEB SPIDER &amp; SECRET HARVESTER</span>
+                                </button>
+                                <button class="subtool-btn" data-subtool="2" onclick="switchSubTool('tab-spidercrawl', 2)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 2] PARAM-MINER &amp; OPENAPI FUZZER</span>
+                                </button>
+                            </div>
+
+                            <!-- SUBTOOL 1: PRIMARY DECK -->
+                            <div class="subtool-deck subtool-deck-primary">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <h2 class="card-title">WEB_SPIDER // SEC-AUDIT &amp; SECRET HARVESTER</h2>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <input type="text" id="spidercrawl-target" class="input-tactical" placeholder="Target URL or apex domain (e.g. example.com)...">
+                                        </div>
+                                        <button class="btn-tactical" onclick="runSpiderCrawl()">START LIVE WEB SPIDER</button>
+                                        <span class="mono small-text dim" id="spidercrawl-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="spidercrawl-results"></div>
+                            </div>
+
+                            <!-- SUBTOOL 2: COMPANION POWER ENGINE -->
+                            <div class="subtool-deck subtool-deck-companion hide">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">API FUZZING &amp; PERIMETER EXPOSURE</span>
+                                            <h2 class="card-title" style="color:#C084FC;">Param-Miner &amp; OpenAPI / Swagger Fuzzer</h2>
+                                        </div>
+                                        <span class="badge violet">PARAM-MINE</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <input type="text" id="paramminer-target" class="input-tactical" placeholder="Target base URL (e.g. https://api.target.com)...">
+                                        </div>
+                                        <button class="btn-tactical" onclick="runParamMiner()">PROBE DEBUG PARAMS &amp; DISCOVER SWAGGER</button>
+                                        <span class="mono small-text dim" id="paramminer-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="paramminer-results"></div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: DOC AUTOPSY -->
+                        <div id="tab-docautopsy" class="tool-panel module-panel">
+                            <!-- Sub-Tool Switcher Bar -->
+                            <div class="subtool-switcher-bar">
+                                <span class="subtool-label">DOC AUTOPSY:</span>
+                                <button class="subtool-btn active" data-subtool="1" onclick="switchSubTool('tab-docautopsy', 1)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 1] DOCUMENT XML &amp; METADATA AUDIT</span>
+                                </button>
+                                <button class="subtool-btn" data-subtool="2" onclick="switchSubTool('tab-docautopsy', 2)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 2] MALICIOUS OLE/VBA &amp; PDF JS DETONATOR</span>
+                                </button>
+                            </div>
+
+                            <!-- SUBTOOL 1: PRIMARY DECK -->
+                            <div class="subtool-deck subtool-deck-primary">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <h2 class="card-title">DOC_AUTOPSY // METADATA &amp; CANARY AUDIT</h2>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <input type="file" id="docautopsy-file" class="input-tactical" onchange="handleDocAutopsyUpload(this.files[0])">
+                                        </div>
+                                        <span class="mono small-text dim" id="docautopsy-status">READY FOR DOCUMENT BUFFER</span>
+                                    </div>
+                                </div>
+                                <div id="docautopsy-results"></div>
+                            </div>
+
+                            <!-- SUBTOOL 2: COMPANION POWER ENGINE -->
+                            <div class="subtool-deck subtool-deck-companion hide">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">WEAPONIZED DOCUMENT STATIC DETONATION</span>
+                                            <h2 class="card-title" style="color:#C084FC;">Malicious OLE/VBA &amp; PDF JavaScript Extractor</h2>
+                                        </div>
+                                        <span class="badge violet">STATIC-DETONATE</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label class="telemetry-label">UPLOAD SUSPICIOUS PDF, DOCX, XLS, OR RTF</label>
+                                            <input type="file" id="docdetonator-file" class="input-tactical" onchange="handleDocDetonatorUpload(this.files[0])">
+                                        </div>
+                                        <span class="mono small-text dim" id="docdetonator-status">READY FOR STATIC DETONATION</span>
+                                    </div>
+                                </div>
+                                <div id="docdetonator-results"></div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: VOICE PRINT -->
+                        <div id="tab-voiceprint" class="tool-panel module-panel">
+                            <!-- Sub-Tool Switcher Bar -->
+                            <div class="subtool-switcher-bar">
+                                <span class="subtool-label">VOICE PRINT:</span>
+                                <button class="subtool-btn active" data-subtool="1" onclick="switchSubTool('tab-voiceprint', 1)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 1] SYNTHETIC BIOMETRICS &amp; FFT SPECTROGRAM</span>
+                                </button>
+                                <button class="subtool-btn" data-subtool="2" onclick="switchSubTool('tab-voiceprint', 2)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 2] ENF ELECTRIC GRID &amp; ROOM GEOLOCATOR</span>
+                                </button>
+                            </div>
+
+                            <!-- SUBTOOL 1: PRIMARY DECK -->
+                            <div class="subtool-deck subtool-deck-primary">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <h2 class="card-title">VOICE_PRINT // SYNTHETIC BIOMETRICS</h2>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <input type="file" id="voiceprint-file" class="input-tactical" accept="audio/*" onchange="handleVoicePrintUpload(this.files[0])">
+                                        </div>
+                                        <span class="mono small-text dim" id="voiceprint-status">READY FOR AUDIO SAMPLE</span>
+                                    </div>
+                                </div>
+                                <div id="voiceprint-results"></div>
+                            </div>
+
+                            <!-- SUBTOOL 2: COMPANION POWER ENGINE -->
+                            <div class="subtool-deck subtool-deck-companion hide">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">ACOUSTIC SURVEILLANCE FORENSICS</span>
+                                            <h2 class="card-title" style="color:#C084FC;">ENF Electric Network Frequency &amp; Room Acoustic Geolocator</h2>
+                                        </div>
+                                        <span class="badge violet">50HZ / 60HZ ENF</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label class="telemetry-label">UPLOAD AUDIO RECORDING (WAV/MP3) FOR MAINS HUM AUDIT</label>
+                                            <input type="file" id="enfanalyzer-file" class="input-tactical" accept="audio/*" onchange="handleEnfAnalyzerUpload(this.files[0])">
+                                        </div>
+                                        <span class="mono small-text dim" id="enfanalyzer-status">AWAITING AUDIO FOR ENF PROBE</span>
+                                    </div>
+                                </div>
+                                <div id="enfanalyzer-results"></div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: ORBITAL EYE -->
+                        <div id="tab-orbitaleye" class="tool-panel module-panel">
+                            <!-- Sub-Tool Switcher Bar -->
+                            <div class="subtool-switcher-bar">
+                                <span class="subtool-label">ORBITAL EYE:</span>
+                                <button class="subtool-btn active" data-subtool="1" onclick="switchSubTool('tab-orbitaleye', 1)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 1] SUN CHRONOLOCATION &amp; SHADOW SOLVER</span>
+                                </button>
+                                <button class="subtool-btn" data-subtool="2" onclick="switchSubTool('tab-orbitaleye', 2)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 2] CELESTIAL NIGHT-SKY &amp; STAR SOLVER</span>
+                                </button>
+                            </div>
+
+                            <!-- SUBTOOL 1: PRIMARY DECK -->
+                            <div class="subtool-deck subtool-deck-primary">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">GEOINT &amp; SIGNALS</span>
+                                            <h2 class="card-title">Orbital Eye Overhead Satellite Recon &amp; Astronomy</h2>
+                                        </div>
+                                        <span class="badge emerald">SAT-RECON</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="grid-2col">
+                                            <div class="form-group">
+                                                <label class="telemetry-label">DECIMAL LATITUDE</label>
+                                                <input type="number" step="any" id="orbital-lat" class="input-tactical" value="51.5074">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="telemetry-label">DECIMAL LONGITUDE</label>
+                                                <input type="number" step="any" id="orbital-lon" class="input-tactical" value="-0.1278">
+                                            </div>
+                                        </div>
+                                        <button class="btn-tactical" onclick="runOrbitalEye()">
+                                            <svg class="nav-icon-svg" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                            <span>COMPUTE ASTRONOMICAL ANGLES &amp; CLOUD GRID</span>
+                                        </button>
+                                        <span class="mono small-text dim" id="orbital-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="orbital-results"></div>
+                            </div>
+
+                            <!-- SUBTOOL 2: COMPANION POWER ENGINE -->
+                            <div class="subtool-deck subtool-deck-companion hide">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">ASTRO-GEOLOCATION &amp; NIGHT CHRONOLOCATION</span>
+                                            <h2 class="card-title" style="color:#C084FC;">Celestial Night-Sky &amp; Constellation Chrono-Solver</h2>
+                                        </div>
+                                        <span class="badge violet">ASTRO-SOLVER</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="grid-3col">
+                                            <div class="form-group">
+                                                <label class="telemetry-label">VISIBLE CONSTELLATIONS (COMMA-SEPARATED)</label>
+                                                <input type="text" id="starsolver-constellations" class="input-tactical" value="Orion, Ursa Major, Cassiopeia" placeholder="Orion, Ursa Major...">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="telemetry-label">POLARIS ALTITUDE DEGREE (0-90°)</label>
+                                                <input type="number" step="0.1" id="starsolver-polaris" class="input-tactical" placeholder="e.g. 51.5 (optional)">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="telemetry-label">OBSERVATION DATE &amp; TIME</label>
+                                                <input type="datetime-local" id="starsolver-date" class="input-tactical">
+                                            </div>
+                                        </div>
+                                        <div style="margin-bottom:12px;">
+                                            <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer;" class="mono small-text cyan">
+                                                <input type="checkbox" id="starsolver-crux" style="accent-color:#00F0FF;"> SOUTHERN CROSS (CRUX) VISIBLE (SOUTHERN HEMISPHERE)
+                                            </label>
+                                        </div>
+                                        <button class="btn-tactical" onclick="runStarSolver()">SOLVE CELESTIAL POSITION &amp; MOON PHASE</button>
+                                        <span class="mono small-text dim" id="starsolver-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="starsolver-results"></div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: EVM & SOL TRACER -->
+                        <div id="tab-evmsol" class="tool-panel module-panel">
+                            <!-- Sub-Tool Switcher Bar -->
+                            <div class="subtool-switcher-bar">
+                                <span class="subtool-label">EVM TRACER:</span>
+                                <button class="subtool-btn active" data-subtool="1" onclick="switchSubTool('tab-evmsol', 1)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 1] CROSS-CHAIN DRAINER AUDIT</span>
+                                </button>
+                                <button class="subtool-btn" data-subtool="2" onclick="switchSubTool('tab-evmsol', 2)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 2] DEX LIQUIDITY &amp; FLASH-LOAN MEV TRACER</span>
+                                </button>
+                            </div>
+
+                            <!-- SUBTOOL 1: PRIMARY DECK -->
+                            <div class="subtool-deck subtool-deck-primary">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <h2 class="card-title">EVM_SOL // CROSS-CHAIN DRAINER SECURITY AUDIT</h2>
+                                        <span class="badge critical">DRAIN-AUDIT</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="grid-2col">
+                                            <div class="form-group">
+                                                <input type="text" id="evmsol-input" class="input-tactical" placeholder="Enter EVM hex (0x...) or Solana Base58 address...">
+                                            </div>
+                                            <div class="form-group">
+                                                <select id="evmsol-chain" class="input-tactical">
+                                                    <option value="auto">Auto-Detect Chain Format</option>
+                                                    <option value="evm">EVM Mainnet (Cloudflare Gateway)</option>
+                                                    <option value="solana">Solana (Official Mainnet RPC)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <button class="btn-tactical" onclick="runEvmSol()">RUN ON-CHAIN SECURITY AUDIT</button>
+                                        <span class="mono small-text dim" id="evmsol-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="evmsol-results"></div>
+                            </div>
+
+                            <!-- SUBTOOL 2: COMPANION POWER ENGINE -->
+                            <div class="subtool-deck subtool-deck-companion hide">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">DEFI MEMPOOL &amp; ARBITRAGE FORENSICS</span>
+                                            <h2 class="card-title" style="color:#C084FC;">DEX Liquidity Pool &amp; Flash-Loan MEV Tracer</h2>
+                                        </div>
+                                        <span class="badge violet">DEFI-MEV</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="grid-2col">
+                                            <div class="form-group">
+                                                <input type="text" id="dex-input" class="input-tactical" placeholder="Enter EVM Transaction Hash (0x...) or AMM Pool Contract...">
+                                            </div>
+                                            <div class="form-group">
+                                                <select id="dex-chain" class="input-tactical">
+                                                    <option value="1">Ethereum Mainnet (RPC)</option>
+                                                    <option value="56">BNB Smart Chain</option>
+                                                    <option value="137">Polygon PoS</option>
+                                                    <option value="42161">Arbitrum One</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <button class="btn-tactical" onclick="runDexArbitrage()">TRACE DEX ROUTE &amp; MEV ARBITRAGE</button>
+                                        <span class="mono small-text dim" id="dexarbitrage-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="dexarbitrage-results"></div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: SHADOW AI -->
+                        <div id="tab-shadowai" class="tool-panel module-panel">
+                            <!-- Sub-Tool Switcher Bar -->
+                            <div class="subtool-switcher-bar">
+                                <span class="subtool-label">PROMPT LEAK:</span>
+                                <button class="subtool-btn active" data-subtool="1" onclick="switchSubTool('tab-shadowai', 1)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 1] SHADOW-AI ENDPOINT INSPECTOR</span>
+                                </button>
+                                <button class="subtool-btn" data-subtool="2" onclick="switchSubTool('tab-shadowai', 2)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 2] MODEL INVERSION &amp; MEMORIZATION PROBER</span>
+                                </button>
+                            </div>
+
+                            <!-- SUBTOOL 1: PRIMARY DECK -->
+                            <div class="subtool-deck subtool-deck-primary">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <h2 class="card-title">PROMPT_LEAK // SHADOW-AI ENDPOINT INSPECTOR</h2>
+                                        <span class="badge violet">SHADOW-AI</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <input type="text" id="shadowai-input" class="input-tactical" placeholder="Target domain or IP address (e.g. example.com)...">
+                                        </div>
+                                        <button class="btn-tactical" onclick="runShadowAI()">PROBE GENAI INFERENCE PORTS (11434, 8000, 6333)</button>
+                                        <span class="mono small-text dim" id="shadowai-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="shadowai-results"></div>
+                            </div>
+
+                            <!-- SUBTOOL 2: COMPANION POWER ENGINE -->
+                            <div class="subtool-deck subtool-deck-companion hide">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">AI RED-TEAMING &amp; PRIVACY AUDIT</span>
+                                            <h2 class="card-title" style="color:#C084FC;">Model Inversion &amp; Training Data Memorization Prober</h2>
+                                        </div>
+                                        <span class="badge violet">CANARY-EXTRACT</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label class="telemetry-label">LLM RESPONSE TEXT OR CANDIDATE COMPLETION BUFFER</label>
+                                            <textarea id="modelinversion-input" class="input-tactical" rows="5" placeholder="Paste generated text or response snippet to detect leaked canaries, PII, and credentials..."></textarea>
+                                        </div>
+                                        <button class="btn-tactical" onclick="runModelInversion()">AUDIT DATA MEMORIZATION &amp; PII LEAKS</button>
+                                        <span class="mono small-text dim" id="modelinversion-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="modelinversion-results"></div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: TELEMETRY HUNTER -->
+                        <div id="tab-telemetry" class="tool-panel module-panel">
+                            <!-- Sub-Tool Switcher Bar -->
+                            <div class="subtool-switcher-bar">
+                                <span class="subtool-label">TELEMETRY:</span>
+                                <button class="subtool-btn active" data-subtool="1" onclick="switchSubTool('tab-telemetry', 1)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 1] ADTECH &amp; TRACKER DE-ANONYMIZER</span>
+                                </button>
+                                <button class="subtool-btn" data-subtool="2" onclick="switchSubTool('tab-telemetry', 2)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 2] FAVICON MURMUR3 &amp; JARM TLS FINGERPRINTER</span>
+                                </button>
+                            </div>
+
+                            <!-- SUBTOOL 1: PRIMARY DECK -->
+                            <div class="subtool-deck subtool-deck-primary">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <h2 class="card-title">TELEMETRY // ADTECH &amp; TRACKER DE-ANONYMIZER</h2>
+                                        <span class="badge cyan">ADTECH-BEACON</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <input type="text" id="telemetry-input" class="input-tactical" placeholder="Target apex domain (e.g. domain.com)...">
+                                        </div>
+                                        <button class="btn-tactical" onclick="runTelemetryHunter()">EXTRACT REAL MARKETING BEACONS</button>
+                                        <span class="mono small-text dim" id="telemetry-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="telemetry-results"></div>
+                            </div>
+
+                            <!-- SUBTOOL 2: COMPANION POWER ENGINE -->
+                            <div class="subtool-deck subtool-deck-companion hide">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">INFRASTRUCTURE UNMASKING</span>
+                                            <h2 class="card-title" style="color:#C084FC;">Favicon Murmur3 &amp; JARM TLS Server Fingerprinter</h2>
+                                        </div>
+                                        <span class="badge violet">DE-CLOAK</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <input type="text" id="jarm-input" class="input-tactical" placeholder="Target domain or IP (e.g. target.com)...">
+                                        </div>
+                                        <button class="btn-tactical" onclick="runJarmClusterer()">COMPUTE FAVICON MURMUR3 &amp; TLS HASHES</button>
+                                        <span class="mono small-text dim" id="jarmclusterer-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="jarmclusterer-results"></div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: RANSOM DISCLOSE -->
+                        <div id="tab-ransom" class="tool-panel module-panel">
+                            <!-- Sub-Tool Switcher Bar -->
+                            <div class="subtool-switcher-bar">
+                                <span class="subtool-label">RANSOM DISCLOSE:</span>
+                                <button class="subtool-btn active" data-subtool="1" onclick="switchSubTool('tab-ransom', 1)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 1] EXTORTION SHAME BLOG FEED</span>
+                                </button>
+                                <button class="subtool-btn" data-subtool="2" onclick="switchSubTool('tab-ransom', 2)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 2] NEGOTIATION TRANSCRIPTS &amp; DECRYPTORS</span>
+                                </button>
+                            </div>
+
+                            <!-- SUBTOOL 1: PRIMARY DECK -->
+                            <div class="subtool-deck subtool-deck-primary">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <h2 class="card-title">RANSOM_DISCLOSE // EXTORTION SHAME BLOG FEED</h2>
+                                        <span class="badge critical">EXTORTION</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <input type="text" id="ransom-input" class="input-tactical" placeholder="Query entity, domain, or company name...">
+                                        </div>
+                                        <button class="btn-tactical" onclick="runRansomDisclose()">QUERY RANSOMWATCH FEED</button>
+                                        <span class="mono small-text dim" id="ransom-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="ransom-results"></div>
+                            </div>
+
+                            <!-- SUBTOOL 2: COMPANION POWER ENGINE -->
+                            <div class="subtool-deck subtool-deck-companion hide">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">CYBER EXTORTION TRIAGE &amp; INCIDENT RESPONSE</span>
+                                            <h2 class="card-title" style="color:#C084FC;">Negotiation Intelligence &amp; Free Decryptor Catalog</h2>
+                                        </div>
+                                        <span class="badge violet">DECRYPT-INDEX</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <input type="text" id="ransom-search-input" class="input-tactical" placeholder="Ransomware family or file extension (e.g. lockbit, akira, .alphv, .djvu)...">
+                                        </div>
+                                        <button class="btn-tactical" onclick="runRansomNegotiator()">SEARCH NEGOTIATION PROFILES &amp; KEYS</button>
+                                        <span class="mono small-text dim" id="ransomnegotiator-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="ransomnegotiator-results"></div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: CAM VECTOR -->
+                        <div id="tab-camvector" class="tool-panel module-panel">
+                            <!-- Sub-Tool Switcher Bar -->
+                            <div class="subtool-switcher-bar">
+                                <span class="subtool-label">CAM VECTOR:</span>
+                                <button class="subtool-btn active" data-subtool="1" onclick="switchSubTool('tab-camvector', 1)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 1] RTSP &amp; CAMERA SURVEILLANCE</span>
+                                </button>
+                                <button class="subtool-btn" data-subtool="2" onclick="switchSubTool('tab-camvector', 2)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 2] INDUSTRIAL SCADA / ICS &amp; IOT RADAR</span>
+                                </button>
+                            </div>
+
+                            <!-- SUBTOOL 1: PRIMARY DECK -->
+                            <div class="subtool-deck subtool-deck-primary">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <h2 class="card-title">CAM_VECTOR // RTSP &amp; IOT PORT PROBE</h2>
+                                        <span class="badge cyan">RTSP-STREAM</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <input type="text" id="camvector-input" class="input-tactical" placeholder="Target host or IP address (e.g. 192.0.2.1)...">
+                                        </div>
+                                        <button class="btn-tactical" onclick="runCamVector()">EXECUTE TCP HANDSHAKE ON RTSP PORTS (554, 8000, 502)</button>
+                                        <span class="mono small-text dim" id="camvector-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="camvector-results"></div>
+                            </div>
+
+                            <!-- SUBTOOL 2: COMPANION POWER ENGINE -->
+                            <div class="subtool-deck subtool-deck-companion hide">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">CRITICAL INFRASTRUCTURE DEFENSE</span>
+                                            <h2 class="card-title" style="color:#C084FC;">Industrial SCADA / ICS &amp; IoT Infrastructure Radar</h2>
+                                        </div>
+                                        <span class="badge violet">OT-RADAR</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <input type="text" id="scada-input" class="input-tactical" placeholder="Target host or IP address to audit for industrial protocols (Modbus, S7, BACnet, MQTT)...">
+                                        </div>
+                                        <button class="btn-tactical" onclick="runScadaRadar()">EXECUTE ICS/OT PROTOCOL SWEEP</button>
+                                        <span class="mono small-text dim" id="scadaradar-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="scadaradar-results"></div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: CANARY SENTINEL -->
+                        <div id="tab-canary" class="tool-panel module-panel">
+                            <!-- Sub-Tool Switcher Bar -->
+                            <div class="subtool-switcher-bar">
+                                <span class="subtool-label">CANARY SENTINEL:</span>
+                                <button class="subtool-btn active" data-subtool="1" onclick="switchSubTool('tab-canary', 1)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 1] DECEPTION TRACKING BEACONS</span>
+                                </button>
+                                <button class="subtool-btn" data-subtool="2" onclick="switchSubTool('tab-canary', 2)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 2] TRIPWIRE DECOY VAULT</span>
+                                </button>
+                            </div>
+
+                            <!-- SUBTOOL 1: PRIMARY DECK -->
+                            <div class="subtool-deck subtool-deck-primary">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <h2 class="card-title">CANARY_SENTINEL // DECEPTION TRACKING BEACONS</h2>
+                                        <span class="badge emerald">DECEPTION</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="grid-2col">
+                                            <div class="form-group">
+                                                <input type="text" id="canary-label" class="input-tactical" placeholder="Canary Token Designation">
+                                            </div>
+                                            <div class="form-group">
+                                                <select id="canary-type" class="input-tactical">
+                                                    <option value="web_bug">1x1 Transparent Tracking Pixel</option>
+                                                    <option value="dns_token">DNS Resolve Probe</option>
+                                                    <option value="doc_beacon">Document Canary Macro</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <button class="btn-tactical" onclick="runCanaryCreate()">DEPLOY FORENSIC CANARY</button>
+                                        <button class="btn-tactical-xs" onclick="refreshCanaryLogs()" style="margin-left:10px;">POLL TRIPWIRE LOGS</button>
+                                        <span class="mono small-text dim" id="canary-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="canary-results"></div>
+                                <div id="canary-logs-container"></div>
+                            </div>
+
+                            <!-- SUBTOOL 2: COMPANION POWER ENGINE -->
+                            <div class="subtool-deck subtool-deck-companion hide">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">ACTIVE DEFENSE &amp; WEAPONIZED DECOYS</span>
+                                            <h2 class="card-title" style="color:#C084FC;">Tripwire Decoy Vault &amp; Inbound Canary Traps</h2>
+                                        </div>
+                                        <span class="badge violet">HONEYTOKEN</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="grid-2col">
+                                            <div class="form-group">
+                                                <label class="telemetry-label">DECOY ASSET FORMAT</label>
+                                                <select id="tripwire-type" class="input-tactical">
+                                                    <option value="sql">Production Database Dump (.sql with embedded DNS canary)</option>
+                                                    <option value="env">Production Cloud Environment (.env with AWS honeytokens)</option>
+                                                    <option value="kube">Kubernetes Admin Kubeconfig (kubeconfig.yaml)</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="telemetry-label">TARGET TENANT / ASSET LABEL</label>
+                                                <input type="text" id="tripwire-label" class="input-tactical" value="SEC_CORP_VAULT" placeholder="Tracking Identifier...">
+                                            </div>
+                                        </div>
+                                        <button class="btn-tactical" onclick="runTripwireVault()">FABRICATE DECOY ASSET</button>
+                                        <span class="mono small-text dim" id="tripwirevault-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="tripwirevault-results"></div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: PROFILER / SCANNER CORE -->
+                        <div id="tab-profiler" class="tool-panel module-panel">
+                            <!-- Sub-Tool Switcher Bar -->
+                            <div class="subtool-switcher-bar">
+                                <span class="subtool-label">TARGET PROFILER:</span>
+                                <button class="subtool-btn active" data-subtool="1" onclick="switchSubTool('tab-profiler', 1)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 1] MULTI-PLATFORM SCANNER</span>
+                                </button>
+                                <button class="subtool-btn" data-subtool="2" onclick="switchSubTool('tab-profiler', 2)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 2] PERSONA SYNTHESIZER &amp; DOSSIER COMPILER</span>
+                                </button>
+                            </div>
+
+                            <!-- SUBTOOL 1: PRIMARY DECK -->
+                            <div class="subtool-deck subtool-deck-primary">
+                                <div class="glass-card active-border">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">PROFILING ENGINE</span>
+                                            <h2 class="card-title">Target Profiler Multi-Platform OSINT Recon</h2>
+                                        </div>
+                                        <span class="badge cyan">OSINT-SCAN</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <input type="text" id="username" class="input-tactical" placeholder="Target handle / identifier (e.g. johndoe)...">
+                                        </div>
+                                        <div style="display:flex;gap:10px;align-items:center;">
+                                            <button class="btn-tactical" onclick="startScan()">
+                                                <svg class="nav-icon-svg" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                                <span>EXECUTE MULTI-PLATFORM PROFILER</span>
+                                            </button>
+                                            <button id="btn-stop-scan" class="btn-tactical-xs critical hide" onclick="stopScan()">HALT SCAN</button>
+                                            <button id="btn-download-scan" class="btn-tactical-xs emerald hide">DOWNLOAD CSV</button>
+                                            <span class="mono small-text dim" id="scan-status-text">ENTER TARGET HANDLE</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="scan-results"></div>
+                            </div>
+
+                            <!-- SUBTOOL 2: COMPANION POWER ENGINE -->
+                            <div class="subtool-deck subtool-deck-companion hide">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">IDENTITY RESOLUTION &amp; TIMELINE RECONSTRUCTION</span>
+                                            <h2 class="card-title" style="color:#C084FC;">Persona Synthesizer &amp; Chronological Dossier Compiler</h2>
+                                        </div>
+                                        <span class="badge violet">DOSSIER-CORTEX</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="grid-2col">
+                                            <div class="form-group">
+                                                <label class="telemetry-label">TARGET IDENTIFIER / PERSONA NAME</label>
+                                                <input type="text" id="persona-target" class="input-tactical" placeholder="Target handle or persona name...">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="telemetry-label">ADDITIONAL INTEL NOTES (OPTIONAL)</label>
+                                                <input type="text" id="persona-notes" class="input-tactical" placeholder="Known affiliations, aliases, or timezones...">
+                                            </div>
+                                        </div>
+                                        <button class="btn-tactical" onclick="runPersonaSynthesizer()">SYNTHESIZE TIMELINE &amp; DOSSIER</button>
+                                        <span class="mono small-text dim" id="personasynthesizer-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="personasynthesizer-results"></div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: BREACH VAULT -->
+                        <div id="tab-breach" class="tool-panel module-panel">
+                            <!-- Sub-Tool Switcher Bar -->
+                            <div class="subtool-switcher-bar">
+                                <span class="subtool-label">BREACH VAULT:</span>
+                                <button class="subtool-btn active" data-subtool="1" onclick="switchSubTool('tab-breach', 1)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 1] BREACH ARCHIVE &amp; API VAULT</span>
+                                </button>
+                                <button class="subtool-btn" data-subtool="2" onclick="switchSubTool('tab-breach', 2)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 2] LOCAL COMBO-LIST DE-HASHER</span>
+                                </button>
+                            </div>
+
+                            <!-- SUBTOOL 1: PRIMARY DECK -->
+                            <div class="subtool-deck subtool-deck-primary">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <h2 class="card-title">BREACH_VAULT // LEAKED CREDENTIAL AGGREGATOR</h2>
+                                        <span class="badge critical">LEAK-AGG</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="grid-2col">
+                                            <div class="form-group">
+                                                <input type="text" id="breach-query" class="input-tactical" placeholder="Email address or username...">
+                                            </div>
+                                            <div class="form-group">
+                                                <select id="breach-type" class="input-tactical">
+                                                    <option value="email">Email Search</option>
+                                                    <option value="username">Username Search</option>
+                                                    <option value="domain">Domain Breach Search</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <button class="btn-tactical" onclick="runBreachVault()">QUERY BREACH ARCHIVE</button>
+                                        <button class="btn-tactical-xs" onclick="window.toggleBreachApiDrawer()" style="margin-left:8px;" id="btn-breach-api-toggle">⚙ API KEYS</button>
+                                        <span class="mono small-text dim" id="breach-status" style="margin-left:14px;">READY</span>
+
+                                        <!-- Collapsible API Credentials Drawer -->
+                                        <div id="breach-api-drawer" class="corner-borders" style="display:none; margin-top:16px; padding:14px; background:rgba(6,11,20,0.85); border:1px solid rgba(0,240,255,0.25); border-radius:6px;">
+                                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                                                <span class="telemetry-label cyan mono" style="letter-spacing:1px;">API SERVICE CREDENTIAL CONFIGURATION</span>
+                                                <span class="badge emerald" id="breach-key-status">KEYLESS (XPOSEDORNOT ACTIVE)</span>
+                                            </div>
+                                            <div class="grid-2col" style="margin-bottom:10px;">
+                                                <div class="form-group" style="margin-bottom:0;">
+                                                    <label class="dim mono small-text" style="display:block; margin-bottom:4px;">PROVIDER SERVICE</label>
+                                                    <select id="breach-service-select" class="input-tactical" style="padding:6px 10px;">
+                                                        <option value="auto">Auto / Keyless Fallback (XposedOrNot)</option>
+                                                        <option value="hibp">HaveIBeenPwned (HIBP v3 API Key)</option>
+                                                        <option value="intelx">Intelligence X (IntelX Key)</option>
+                                                        <option value="dehashed">DeHashed (API Key &amp; Account)</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group" style="margin-bottom:0;">
+                                                    <label class="dim mono small-text" style="display:block; margin-bottom:4px;">SERVICE API KEY (SAVED LOCALLY)</label>
+                                                    <div style="display:flex; gap:6px;">
+                                                        <input type="password" id="breach-api-key" class="input-tactical" placeholder="Paste personal API key..." style="padding:6px 10px; font-family:monospace;">
+                                                        <button class="btn-tactical-xs" type="button" onclick="window.toggleBreachKeyVisibility()" title="Show/Hide Key">👁</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                                <span class="dim mono small-text">Keys are stored strictly in client-side localStorage and passed encrypted to query endpoints.</span>
+                                                <div style="display:flex; gap:8px;">
+                                                    <button class="btn-tactical-xs cyan" onclick="window.saveBreachApiKey()">SAVE CREDENTIALS</button>
+                                                    <button class="btn-tactical-xs" onclick="window.clearBreachApiKey()" style="color:#ff0055;">PURGE</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="breach-results"></div>
+                            </div>
+
+                            <!-- SUBTOOL 2: COMPANION POWER ENGINE -->
+                            <div class="subtool-deck subtool-deck-companion hide">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">CRYPTOGRAPHIC HASH RECOVERY</span>
+                                            <h2 class="card-title" style="color:#C084FC;">Local Combo-List De-Hasher &amp; Entropy Auditor</h2>
+                                        </div>
+                                        <span class="badge violet">DE-HASHER</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label class="telemetry-label">TARGET HASH (MD5 / SHA1 / SHA256 / NTLM / BCRYPT / ARGON2)</label>
+                                            <input type="text" id="hashcracker-input" class="input-tactical" placeholder="Paste hash string (e.g. 5f4dcc3b5aa765d61d8327deb882cf99)...">
+                                        </div>
+                                        <button class="btn-tactical" onclick="runHashCracker()">IDENTIFY &amp; DE-HASH INSTANTLY</button>
+                                        <span class="mono small-text dim" id="hashcracker-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="hashcracker-results"></div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: DIGITAL FOOTPRINT -->
+                        <div id="tab-footprint" class="tool-panel module-panel">
+                            <!-- Sub-Tool Switcher Bar -->
+                            <div class="subtool-switcher-bar">
+                                <span class="subtool-label">FOOTPRINT:</span>
+                                <button class="subtool-btn active" data-subtool="1" onclick="switchSubTool('tab-footprint', 1)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 1] REGISTRATION FOOTPRINT</span>
+                                </button>
+                                <button class="subtool-btn" data-subtool="2" onclick="switchSubTool('tab-footprint', 2)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 2] CARRIER HLR &amp; SIM-SWAP AUDITOR</span>
+                                </button>
+                            </div>
+
+                            <!-- SUBTOOL 1: PRIMARY DECK -->
+                            <div class="subtool-deck subtool-deck-primary">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <h2 class="card-title">DIGITAL_FOOTPRINT // HOLEHE PROBE</h2>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="grid-2col">
+                                            <div class="form-group">
+                                                <input type="text" id="footprint-query" class="input-tactical" placeholder="Target email or phone...">
+                                            </div>
+                                            <div class="form-group">
+                                                <select id="footprint-type" class="input-tactical">
+                                                    <option value="email">Email Footprint</option>
+                                                    <option value="phone">Phone Telemetry</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <button class="btn-tactical" onclick="runFootprint()">PROBE REGISTRATION SIGNALS</button>
+                                        <span class="mono small-text dim" id="footprint-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="footprint-results"></div>
+                            </div>
+
+                            <!-- SUBTOOL 2: COMPANION POWER ENGINE -->
+                            <div class="subtool-deck subtool-deck-companion hide">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">TELECOMMUNICATIONS SIGNALS INTEL</span>
+                                            <h2 class="card-title" style="color:#C084FC;">Carrier HLR Lookup &amp; SIM-Swap Exposure Auditor</h2>
+                                        </div>
+                                        <span class="badge violet">HLR-AUDIT</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label class="telemetry-label">INTERNATIONAL MSISDN / E.164 PHONE NUMBER</label>
+                                            <input type="text" id="hlr-input" class="input-tactical" placeholder="+14155552671 or +447911123456...">
+                                        </div>
+                                        <button class="btn-tactical" onclick="runHlrAnalyzer()">AUDIT CARRIER HLR &amp; SIM-SWAP VULNERABILITY</button>
+                                        <span class="mono small-text dim" id="hlranalyzer-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="hlranalyzer-results"></div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: MAIL TRACER -->
+                        <div id="tab-mailtracer" class="tool-panel module-panel">
+                            <!-- Sub-Tool Switcher Bar -->
+                            <div class="subtool-switcher-bar">
+                                <span class="subtool-label">MAIL TRACER:</span>
+                                <button class="subtool-btn active" data-subtool="1" onclick="switchSubTool('tab-mailtracer', 1)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 1] MX &amp; SPF/DKIM DIAGNOSTICS</span>
+                                </button>
+                                <button class="subtool-btn" data-subtool="2" onclick="switchSubTool('tab-mailtracer', 2)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 2] RAW RFC 822 HEADER INFILTRATOR</span>
+                                </button>
+                            </div>
+
+                            <!-- SUBTOOL 1: PRIMARY DECK -->
+                            <div class="subtool-deck subtool-deck-primary">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <h2 class="card-title">MAIL_TRACER // MX &amp; SPF/DKIM DIAGNOSTICS</h2>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <input type="text" id="mailtracer-input" class="input-tactical" placeholder="Target email address...">
+                                        </div>
+                                        <button class="btn-tactical" onclick="runMailTracer()">PROBE MX SERVERS</button>
+                                        <span class="mono small-text dim" id="mailtracer-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="mailtracer-results"></div>
+                            </div>
+
+                            <!-- SUBTOOL 2: COMPANION POWER ENGINE -->
+                            <div class="subtool-deck subtool-deck-companion hide">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">FORENSIC EMAIL HOP-BY-HOP ROUTING</span>
+                                            <h2 class="card-title" style="color:#C084FC;">Raw RFC 822 Header Infiltration Analyzer</h2>
+                                        </div>
+                                        <span class="badge violet">RFC822-UNMASK</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label class="telemetry-label">PASTE RAW EMAIL HEADERS (RECEIVED / AUTHENTICATION-RESULTS)</label>
+                                            <textarea id="emailheader-input" class="input-tactical" rows="5" placeholder="Received: from mail.example.com...\nAuthentication-Results: ...\nFrom: sender@domain.com"></textarea>
+                                        </div>
+                                        <button class="btn-tactical" onclick="runEmailHeaderAnalyzer()">RECONSTRUCT HOPS &amp; DETECT SPOOFING</button>
+                                        <span class="mono small-text dim" id="emailheader-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="emailheader-results"></div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: CODE HUNTER -->
+                        <div id="tab-codehunter" class="tool-panel module-panel">
+                            <!-- Sub-Tool Switcher Bar -->
+                            <div class="subtool-switcher-bar">
+                                <span class="subtool-label">CODE HUNTER:</span>
+                                <button class="subtool-btn active" data-subtool="1" onclick="switchSubTool('tab-codehunter', 1)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 1] GIT REPOSITORY HARVESTER</span>
+                                </button>
+                                <button class="subtool-btn" data-subtool="2" onclick="switchSubTool('tab-codehunter', 2)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 2] MULTI-FORGE REPO SECRET SCANNER</span>
+                                </button>
+                            </div>
+
+                            <!-- SUBTOOL 1: PRIMARY DECK -->
+                            <div class="subtool-deck subtool-deck-primary">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <h2 class="card-title">CODE_HUNTER // GIT REPO SECRET AUDIT</h2>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <input type="text" id="codehunter-input" class="input-tactical" placeholder="GitHub username to inspect...">
+                                        </div>
+                                        <button class="btn-tactical" onclick="runCodeHunter()">AUDIT PUBLIC REPOSITORIES</button>
+                                        <span class="mono small-text dim" id="codehunter-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="codehunter-results"></div>
+                            </div>
+
+                            <!-- SUBTOOL 2: COMPANION POWER ENGINE -->
+                            <div class="subtool-deck subtool-deck-companion hide">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">MULTI-FORGE CREDENTIAL DISCOVERY</span>
+                                            <h2 class="card-title" style="color:#C084FC;">Gitleaks Secret Scanner &amp; Token Extractor</h2>
+                                        </div>
+                                        <span class="badge violet">GITLEAKS</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label class="telemetry-label">PASTE RAW SOURCE CODE, COMMITS, OR CONFIG FILE</label>
+                                            <textarea id="gitleaks-input" class="input-tactical" rows="5" placeholder="Paste source code or commit diff to scan for AWS, Slack, Stripe, and Private RSA keys..."></textarea>
+                                        </div>
+                                        <button class="btn-tactical" onclick="runGitleaksScanner()">EXECUTE GITLEAKS SCAN</button>
+                                        <span class="mono small-text dim" id="gitleaks-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="gitleaks-results"></div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: DEEP IDENTITY (AVATAR) -->
+                        <div id="tab-deepidentity" class="tool-panel module-panel">
+                            <!-- Sub-Tool Switcher Bar -->
+                            <div class="subtool-switcher-bar">
+                                <span class="subtool-label">DEEP IDENTITY:</span>
+                                <button class="subtool-btn active" data-subtool="1" onclick="switchSubTool('tab-deepidentity', 1)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 1] STYLEGAN AVATAR SPECTRAL AUDIT</span>
+                                </button>
+                                <button class="subtool-btn" data-subtool="2" onclick="switchSubTool('tab-deepidentity', 2)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 2] BIOMETRIC 128D FACIAL MATCHER</span>
+                                </button>
+                            </div>
+
+                            <!-- SUBTOOL 1: PRIMARY DECK -->
+                            <div class="subtool-deck subtool-deck-primary">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <h2 class="card-title">DEEP_IDENTITY // STYLEGAN AVATAR SPECTRAL AUDIT</h2>
+                                        <span class="badge violet">AVATAR-GAN</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <input type="file" id="deepidentity-file" class="input-tactical" accept="image/*" onchange="handleDeepIdentityUpload(this.files[0])">
+                                        </div>
+                                        <span class="mono small-text dim" id="deepidentity-status">AWAITING AVATAR BUFFER</span>
+                                    </div>
+                                </div>
+                                <div id="deepidentity-results"></div>
+                            </div>
+
+                            <!-- SUBTOOL 2: COMPANION POWER ENGINE -->
+                            <div class="subtool-deck subtool-deck-companion hide">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">1:1 BIOMETRIC FACIAL VERIFICATION</span>
+                                            <h2 class="card-title" style="color:#C084FC;">Biometric Facial Embedding &amp; Landmark Matcher</h2>
+                                        </div>
+                                        <span class="badge violet">FACE-MATCH</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="grid-2col">
+                                            <div class="form-group">
+                                                <label class="telemetry-label">PORTRAIT IMAGE A</label>
+                                                <input type="file" id="facematch-file-a" class="input-tactical" accept="image/*">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="telemetry-label">PORTRAIT IMAGE B</label>
+                                                <input type="file" id="facematch-file-b" class="input-tactical" accept="image/*">
+                                            </div>
+                                        </div>
+                                        <button class="btn-tactical" onclick="runFaceMatcher()">EXECUTE 1:1 BIOMETRIC COMPARISON</button>
+                                        <span class="mono small-text dim" id="facematcher-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="facematcher-results"></div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: DOMAIN ORACLE -->
+                        <div id="tab-oracle" class="tool-panel module-panel">
+                            <!-- Sub-Tool Switcher Bar -->
+                            <div class="subtool-switcher-bar">
+                                <span class="subtool-label">DOMAIN ORACLE:</span>
+                                <button class="subtool-btn active" data-subtool="1" onclick="switchSubTool('tab-oracle', 1)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 1] DNS &amp; SUBDOMAIN ENUMERATION</span>
+                                </button>
+                                <button class="subtool-btn" data-subtool="2" onclick="switchSubTool('tab-oracle', 2)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 2] SUBDOMAIN TAKEOVER AUDITOR</span>
+                                </button>
+                            </div>
+
+                            <!-- SUBTOOL 1: PRIMARY DECK -->
+                            <div class="subtool-deck subtool-deck-primary">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <h2 class="card-title">DOMAIN_ORACLE // DNS &amp; SUBDOMAIN ENUMERATION</h2>
+                                        <span class="badge cyan">DNS-ENUM</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <input type="text" id="oracle-domain" class="input-tactical" placeholder="Target domain (e.g. target.com)...">
+                                        </div>
+                                        <button class="btn-tactical" onclick="runDomainOracle()">RESOLVE DNS ZONES</button>
+                                        <span class="mono small-text dim" id="oracle-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="oracle-results"></div>
+                            </div>
+
+                            <!-- SUBTOOL 2: COMPANION POWER ENGINE -->
+                            <div class="subtool-deck subtool-deck-companion hide">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">DANGLING CLOUD PERIMETER AUDIT</span>
+                                            <h2 class="card-title" style="color:#C084FC;">DNS Zone Transfer &amp; Subdomain Takeover Auditor</h2>
+                                        </div>
+                                        <span class="badge violet">TAKEOVER</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label class="telemetry-label">TARGET DOMAIN OR CNAME HOST</label>
+                                            <input type="text" id="takeover-domain" class="input-tactical" placeholder="subdomain.target.com or target.com...">
+                                        </div>
+                                        <button class="btn-tactical" onclick="runTakeoverAuditor()">PROBE AXFR &amp; CLOUD TAKEOVER FINGERPRINTS</button>
+                                        <span class="mono small-text dim" id="takeover-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="takeover-results"></div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: NETWORK MAPPER -->
+                        <div id="tab-network" class="tool-panel module-panel">
+                            <!-- Sub-Tool Switcher Bar -->
+                            <div class="subtool-switcher-bar">
+                                <span class="subtool-label">NETWORK MAPPER:</span>
+                                <button class="subtool-btn active" data-subtool="1" onclick="switchSubTool('tab-network', 1)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 1] PORT &amp; TOPOLOGY AUDIT</span>
+                                </button>
+                                <button class="subtool-btn" data-subtool="2" onclick="switchSubTool('tab-network', 2)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 2] SSL/TLS CIPHER SUITE AUDITOR</span>
+                                </button>
+                            </div>
+
+                            <!-- SUBTOOL 1: PRIMARY DECK -->
+                            <div class="subtool-deck subtool-deck-primary">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <h2 class="card-title">NETWORK_MAPPER // PORT &amp; TOPOLOGY AUDIT</h2>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <input type="text" id="network-domain" class="input-tactical" placeholder="Host or domain to map...">
+                                        </div>
+                                        <button class="btn-tactical" onclick="runNetworkScan()">EXECUTE TCP SYN PORT AUDIT</button>
+                                        <span class="mono small-text dim" id="network-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="network-results"></div>
+                            </div>
+
+                            <!-- SUBTOOL 2: COMPANION POWER ENGINE -->
+                            <div class="subtool-deck subtool-deck-companion hide">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">CRYPTOGRAPHIC HANDSHAKE SECURITY</span>
+                                            <h2 class="card-title" style="color:#C084FC;">SSL/TLS Cipher Suite &amp; Protocol Vulnerability Auditor</h2>
+                                        </div>
+                                        <span class="badge violet">TLS-AUDIT</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="grid-2col">
+                                            <div class="form-group">
+                                                <label class="telemetry-label">TARGET HOST / IP</label>
+                                                <input type="text" id="tls-host" class="input-tactical" placeholder="target.com or IP address...">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="telemetry-label">TLS PORT</label>
+                                                <input type="number" id="tls-port" class="input-tactical" value="443">
+                                            </div>
+                                        </div>
+                                        <button class="btn-tactical" onclick="runTlsAuditor()">EVALUATE TLS PROTOCOLS &amp; CIPHERS</button>
+                                        <span class="mono small-text dim" id="tlsauditor-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="tlsauditor-results"></div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: GEOINT SPY -->
+                        <div id="tab-geoint" class="tool-panel module-panel">
+                            <!-- Sub-Tool Switcher Bar -->
+                            <div class="subtool-switcher-bar">
+                                <span class="subtool-label">GEOINT SPY:</span>
+                                <button class="subtool-btn active" data-subtool="1" onclick="switchSubTool('tab-geoint', 1)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 1] TACTICAL SATELLITE MAP</span>
+                                </button>
+                                <button class="subtool-btn" data-subtool="2" onclick="switchSubTool('tab-geoint', 2)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 2] MGRS GRID &amp; SATELLITE OVERPASS TRACKER</span>
+                                </button>
+                            </div>
+
+                            <!-- SUBTOOL 1: PRIMARY DECK -->
+                            <div class="subtool-deck subtool-deck-primary">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <h2 class="card-title">GEOINT_SPY // COORDINATE RECON</h2>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="grid-2col">
+                                            <div class="form-group">
+                                                <input type="text" id="geoint-lat" class="input-tactical" value="48.8584" placeholder="Latitude">
+                                            </div>
+                                            <div class="form-group">
+                                                <input type="text" id="geoint-lon" class="input-tactical" value="2.2945" placeholder="Longitude">
+                                            </div>
+                                        </div>
+                                        <button class="btn-tactical" onclick="runGeoint()">LOCK GEOINT COORDINATES</button>
+                                        <span class="mono small-text dim" id="geoint-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <!-- Interactive Tactical Geoint Map -->
+                                <div id="geoint-map-card" class="glass-card" style="margin-top:16px;">
+                                    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                                        <div>
+                                            <span class="telemetry-label">SPATIAL TARGETING MATRIX</span>
+                                            <h3 class="card-title" style="margin:0; font-size:14px;"><span class="badge emerald" style="margin-right:6px;">TACTICAL LOCK</span> GEODETIC INTERACTIVE MAP</h3>
+                                        </div>
+                                        <div style="display:flex; gap:8px;">
+                                            <button class="btn-tactical-xs cyan" id="btn-geoint-dark" onclick="window.setGeointMapLayer('dark')">DARK MATTER</button>
+                                            <button class="btn-tactical-xs" id="btn-geoint-sat" onclick="window.setGeointMapLayer('satellite')">SATELLITE</button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body" style="padding:0; position:relative; min-height:420px;">
+                                        <div id="geoint-map" style="height:420px; width:100%; border-radius:0 0 8px 8px; background:#0b0f19;"></div>
+                                        <div class="map-crosshair-hud" style="position:absolute; top:12px; right:12px; background:rgba(0,0,0,0.8); border:1px solid #00F0FF; padding:6px 12px; border-radius:4px; font-family:monospace; font-size:11px; z-index:1000; pointer-events:none;">
+                                            <span class="cyan">TARGET //</span> <span id="geoint-hud-coords">48.8584, 2.2945</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="geoint-results"></div>
+                            </div>
+
+                            <!-- SUBTOOL 2: COMPANION POWER ENGINE -->
+                            <div class="subtool-deck subtool-deck-companion hide">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">MILITARY GRID &amp; ORBITAL PASS SCHEDULING</span>
+                                            <h2 class="card-title" style="color:#C084FC;">MGRS Military Grid &amp; Satellite Overpass Calculator</h2>
+                                        </div>
+                                        <span class="badge violet">MGRS-SAT</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="grid-2col">
+                                            <div class="form-group">
+                                                <label class="telemetry-label">DECIMAL LATITUDE</label>
+                                                <input type="text" id="mgrs-lat" class="input-tactical" value="48.8584">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="telemetry-label">DECIMAL LONGITUDE</label>
+                                                <input type="text" id="mgrs-lon" class="input-tactical" value="2.2945">
+                                            </div>
+                                        </div>
+                                        <button class="btn-tactical" onclick="runMgrsTracker()">CALCULATE MGRS &amp; SATELLITE PASS TIMES</button>
+                                        <span class="mono small-text dim" id="mgrstracker-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="mgrstracker-results"></div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: SKY RADAR -->
+                        <div id="tab-flight" class="tool-panel module-panel">
+                            <!-- Sub-Tool Switcher Bar -->
+                            <div class="subtool-switcher-bar">
+                                <span class="subtool-label">SKY RADAR:</span>
+                                <button class="subtool-btn active" data-subtool="1" onclick="switchSubTool('tab-flight', 1)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 1] LIVE ADS-B AIRSPACE RADAR</span>
+                                </button>
+                                <button class="subtool-btn" data-subtool="2" onclick="switchSubTool('tab-flight', 2)">
+                                    <span class="subtool-dot"></span>
+                                    <span>[TOOL 2] EMERGENCY SQUAWK &amp; RECON RADAR</span>
+                                </button>
+                            </div>
+
+                            <!-- SUBTOOL 1: PRIMARY DECK -->
+                            <div class="subtool-deck subtool-deck-primary">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <h2 class="card-title">SKY_RADAR // LIVE ADS-B AIRCRAFT TRANSPONDER RADAR</h2>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="grid-3col">
+                                            <div class="form-group"><input type="number" step="any" id="flight-lat" class="input-tactical" value="51.5074" placeholder="Lat"></div>
+                                            <div class="form-group"><input type="number" step="any" id="flight-lon" class="input-tactical" value="-0.1278" placeholder="Lon"></div>
+                                            <div class="form-group"><input type="number" id="flight-radius" class="input-tactical" value="120" placeholder="Radius KM"></div>
+                                        </div>
+                                        <button class="btn-tactical" onclick="runFlightRadar()">INTERCEPT AIRSPACE (OPENSKY API)</button>
+                                        <span class="mono small-text dim" id="flight-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <!-- Interactive ADS-B Airspace Radar Map -->
+                                <div id="flight-radar-map-card" class="glass-card" style="margin-top:16px;">
+                                    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                                        <div>
+                                            <span class="telemetry-label">TRANSPONDER TELEMETRY GRID</span>
+                                            <h3 class="card-title" style="margin:0; font-size:14px;"><span class="badge cyan" style="margin-right:6px;">ADS-B RADAR</span> AIRSPACE INTERCEPT MATRIX</h3>
+                                        </div>
+                                        <div style="display:flex; align-items:center; gap:8px;">
+                                            <span class="badge cyan mono" id="flight-tracked-count">0 AIRCRAFT DETECTED</span>
+                                            <button class="btn-tactical-xs" onclick="window.recenterFlightMap()">CENTER RADAR</button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body" style="padding:0; position:relative; min-height:460px;">
+                                        <div id="flight-map" style="height:460px; width:100%; border-radius:0 0 8px 8px; background:#070b14;"></div>
+                                    </div>
+                                </div>
+                                <div id="flight-results"></div>
+                            </div>
+
+                            <!-- SUBTOOL 2: COMPANION POWER ENGINE -->
+                            <div class="subtool-deck subtool-deck-companion hide">
+                                <div class="glass-card">
+                                    <div class="card-header">
+                                        <div>
+                                            <span class="telemetry-label">SPECIAL AIR OPERATIONS &amp; MAYDAY MONITOR</span>
+                                            <h2 class="card-title" style="color:#C084FC;">Emergency Squawk Monitor &amp; Strategic Military Radar</h2>
+                                        </div>
+                                        <span class="badge violet">SQUAWK-7700</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="grid-3col">
+                                            <div class="form-group">
+                                                <label class="telemetry-label">CENTER LATITUDE</label>
+                                                <input type="number" step="any" id="squawk-lat" class="input-tactical" value="51.5074">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="telemetry-label">CENTER LONGITUDE</label>
+                                                <input type="number" step="any" id="squawk-lon" class="input-tactical" value="-0.1278">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="telemetry-label">MONITOR RADIUS (KM)</label>
+                                                <input type="number" id="squawk-radius" class="input-tactical" value="300">
+                                            </div>
+                                        </div>
+                                        <button class="btn-tactical" onclick="runSquawkMonitor()">INTERCEPT SQUAWK CODES &amp; MILITARY AIR</button>
+                                        <span class="mono small-text dim" id="squawkmonitor-status" style="margin-left:14px;">READY</span>
+                                    </div>
+                                </div>
+                                <div id="squawkmonitor-results"></div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- MODE 2: NEXUS GRAPH CANVAS -->
+                    <div id="canvas-nexus-graph" class="hide">
+                        <div class="nexus-graph-overlay-bar">
+                            <button class="btn-tactical-xs cyan" onclick="window.nexusGraph.setLayout('cose')">FORCE-DIRECTED</button>
+                            <button class="btn-tactical-xs" onclick="window.nexusGraph.setLayout('concentric')">CONCENTRIC</button>
+                            <button class="btn-tactical-xs" onclick="window.nexusGraph.setLayout('circle')">CIRCLE</button>
+                            <button class="btn-tactical-xs" onclick="window.nexusGraph.resetView()">FIT VIEW</button>
+                            <button class="btn-tactical-xs" onclick="window.nexusGraph.exportImage()">EXPORT PNG</button>
+                            <span id="nexus-graph-scope-badge" class="badge cyan mono" style="margin-left:auto; letter-spacing: 0.05em; font-size: 10px;">TOPOLOGY // STANDBY</span>
+                        </div>
+                        <div id="nexus-graph-canvas"></div>
+                        <div id="nexus-node-inspector" class="hide"></div>
+                    </div>
+
+                </div>
+            
+            </main>
+
+            <!-- RIGHT DECK: THE AI ANALYST & CORRELATION DOSSIER -->
+            <aside id="threat-panel" class="bb-col-threat tactical-dossier-deck">
+                <!-- Dynamic SVG Threat Dial -->
+                <div class="threat-dial-card">
+                    <span class="telemetry-label">OVERALL TARGET THREAT SCORE</span>
+                    <div class="threat-svg-wrap">
+                        <svg class="threat-svg" viewBox="0 0 100 100">
+                            <circle class="threat-circle-bg" cx="50" cy="50" r="44"></circle>
+                            <circle id="threat-circle-path" class="threat-circle-val" cx="50" cy="50" r="44"></circle>
+                        </svg>
+                        <div class="threat-center-metric">
+                            <div id="threat-score-number" class="threat-score-num">10</div>
+                            <div id="threat-tier-text" class="threat-tier-badge emerald">SECURE</div>
+                        </div>
+                    </div>
+                    <span class="mono small-text dim">AUTONOMOUS RISK SYNTHESIS</span>
+                </div>
+
+                <!-- Target Profile Matrix -->
+                <div class="target-profile-matrix">
+                    <div class="matrix-title">TARGET PROFILE MATRIX</div>
+                    <div class="matrix-stat-row">
+                        <span class="matrix-stat-label">ACTIVE TARGET</span>
+                        <span id="active-target-display" class="matrix-stat-val cyan">UNASSESSED TARGET</span>
+                    </div>
+                    <div class="matrix-stat-row">
+                        <span class="matrix-stat-label">MODULE COVERAGE</span>
+                        <span id="module-coverage-count" class="matrix-stat-val">0 / 26 MODULES</span>
+                    </div>
+                    <div class="matrix-progress-bar">
+                        <div id="module-coverage-bar" class="matrix-progress-fill" style="width: 0%;"></div>
+                    </div>
+                    <div class="matrix-stat-row" style="margin-top: 8px;">
+                        <span class="matrix-stat-label">CORRELATION PULSE</span>
+                        <span id="last-pulse-time" class="matrix-stat-val dim">STANDBY</span>
+                    </div>
+                </div>
+
+                <!-- Critical Risk Breakdown (Itemized Ledger) -->
+                <div class="threat-ledger-card">
+                    <div class="threat-ledger-header">
+                        <span class="threat-ledger-title">CRITICAL RISK BREAKDOWN // LEDGER</span>
+                        <span class="badge cyan">ACTIVE</span>
+                    </div>
+                    <div id="threat-ledger-list" class="threat-ledger-list">
+                        <div class="ledger-empty">[-] NO CRITICAL IOCs DETECTED ACROSS RUN MODULES</div>
+                    </div>
+                </div>
+
+                <!-- Cross-Module Correlations Stream -->
+                <div class="correlation-deck-section">
+                    <div class="correlation-deck-title">
+                        <span>LIVE CORRELATION VECTORS</span>
+                        <span class="badge cyan">SYNTHESIS</span>
+                    </div>
+                    <div id="live-correlation-feed" class="correlation-feed">
+                        <div class="correlation-item">
+                            <span class="finding-dot emerald"></span>
+                            <div class="correlation-content">
+                                <div class="correlation-text">Synthesis cortex standing by. Awaiting live target execution.</div>
+                                <div class="correlation-meta mono">STANDBY // READY</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- One-Click Export Classified Dossier Button -->
+                <button class="btn-export-dossier" onclick="exportExecutiveDossier()">
+                    <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    <span>EXPORT CLASSIFIED DOSSIER</span>
+                </button>
+            </aside>
+
+        </div>
+    </div>
+
+<!-- ============================================================
+         COMMAND PALETTE (CMD+K) MODAL
+         ============================================================ -->
+    <div id="cmd-palette-modal" class="cmd-palette-backdrop hide" onclick="if(event.target===this) window.cmdPalette.close()">
+        <div class="cmd-palette-modal">
+            <input type="text" id="cmd-palette-input" class="cmd-palette-input" placeholder="Type module designation, action, or target... (ESC to dismiss)" oninput="window.cmdPalette.filter(this.value)" onkeydown="window.cmdPalette.handleKeyDown(event)">
+            <div id="cmd-palette-results" class="cmd-palette-list"></div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         EXECUTIVE DOSSIER PREVIEW MODAL
+         ============================================================ -->
+    <div id="dossier-preview-modal" class="modal-backdrop hide" onclick="if(event.target===this) closeDossierModal()">
+        <div class="modal-window">
+            <div class="modal-header">
+                <div>
+                    <span class="telemetry-label">CHAIN OF CUSTODY</span>
+                    <h3 class="card-title">EXECUTIVE OSINT DOSSIER PREVIEW</h3>
+                </div>
+                <button class="btn-tactical-xs" onclick="closeDossierModal()">&times; CLOSE</button>
+            </div>
+            <div class="modal-body" id="dossier-preview-body"></div>
+            <div class="modal-footer">
+                <button class="btn-tactical-xs" onclick="closeDossierModal()">CANCEL</button>
+                <button class="btn-tactical cyan" onclick="downloadDossierHtml()">DOWNLOAD SEALED DOSSIER (HTML/PDF)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script Bundles -->
+    <script src="js/audio-fx.js"></script>
+    <script src="js/three-backdrop.js"></script>
+    <script src="js/nexus-graph.js"></script>
+    <script src="js/cmd-palette.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/modules.js"></script>
+    <script src="js/companion-tools.js"></script>
+    <script src="js/app.js"></script>
+
+</body>
+</html>
