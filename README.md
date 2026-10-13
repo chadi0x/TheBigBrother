@@ -5,7 +5,7 @@
 # THE BIG BROTHER · V7.0 (NEXUS)
 <br/>
 <a href="https://thebigbrother.cloud/">
-  <img width="1584" height="672" alt="TheBigBrother" src="https://github.com/user-attachments/assets/5b8e4a39-a88e-4d2f-a20f-84693454980b">
+  <img width="1584" height="672" alt="TheBigBrother" src="https://github.com/user-attachments/assets/98768f61-c5fb-4cfe-a3d1-092c4f7c17e5">
 </a>
 
 
