@@ -1,0 +1,538 @@
+{
+  "version": "10.1.0",
+  "codename": "SOVEREIGN",
+  "total_modules": 60,
+  "total_engines": 76,
+  "categories": [
+    {
+      "id": "synthesis",
+      "name": "Synthesis & AI Cortex",
+      "description": "Multi-agent correlation and threat scoring",
+      "icon": "brain"
+    },
+    {
+      "id": "identity",
+      "name": "Identity & Social Profiling",
+      "description": "Username, avatar, email, code repo, and synthetic persona de-anonymization",
+      "icon": "user-check"
+    },
+    {
+      "id": "threat_intel",
+      "name": "Threat Intelligence & Leaks",
+      "description": "Breach surveillance, ransomware tracking, infostealers, and paste dumps",
+      "icon": "shield-alert"
+    },
+    {
+      "id": "infrastructure",
+      "name": "Network & Infrastructure",
+      "description": "DNS records, subnet mapping, SSL telemetry, IoT search, and shadow AI exposure",
+      "icon": "server"
+    },
+    {
+      "id": "financial",
+      "name": "Financial & Blockchain Intelligence",
+      "description": "Cross-chain crypto tracing, mixer heuristics, and liquidity drain analysis",
+      "icon": "coins"
+    },
+    {
+      "id": "media_geo",
+      "name": "GEOINT, Signals & Media Forensics",
+      "description": "Satellite imagery, flight tracking, audio ENF, EXIF metadata, and canary tracking tokens",
+      "icon": "satellite"
+    },
+    {
+      "id": "vx_arsenal",
+      "name": "VX Sovereign Arsenal",
+      "description": "Twenty-four keyless engines: DNS/CT, edge posture, cloud exposure, token forensics, CVE/IOC, attack-surface scoring, origin unmasking, GraphQL and supply-chain auditing",
+      "icon": "hexagon"
+    },
+    {
+      "id": "appsec",
+      "name": "Application & Supply Chain",
+      "description": "GraphQL schema risk, npm/PyPI provenance and install-time code auditing",
+      "icon": "code"
+    }
+  ],
+  "modules": [
+    {
+      "id": "ai_analyst",
+      "index": 1,
+      "name": "AI Analyst (VX Cortex)",
+      "category": "synthesis",
+      "badge": "VX CORTEX",
+      "endpoint": "/api/analyst"
+    },
+    {
+      "id": "phantom_id",
+      "index": 2,
+      "name": "Phantom ID",
+      "category": "identity",
+      "badge": "V4 CORE",
+      "endpoint": "/api/phantom"
+    },
+    {
+      "id": "digital_footprint",
+      "index": 3,
+      "name": "Digital Footprint (Holehe)",
+      "category": "identity",
+      "badge": "V3 CORE",
+      "endpoint": "/api/footprint"
+    },
+    {
+      "id": "code_hunter",
+      "index": 4,
+      "name": "Code Hunter",
+      "category": "identity",
+      "badge": "V5 LABS",
+      "endpoint": "/api/codehunter"
+    },
+    {
+      "id": "shadow_clone",
+      "index": 5,
+      "name": "Shadow Clone",
+      "category": "identity",
+      "badge": "V6 INTEL",
+      "endpoint": "/api/shadowclone"
+    },
+    {
+      "id": "deep_identity",
+      "index": 6,
+      "name": "Deep Identity Synth",
+      "category": "identity",
+      "badge": "VX ELITE",
+      "endpoint": "/api/deepidentity/upload"
+    },
+    {
+      "id": "breach_vault",
+      "index": 7,
+      "name": "Breach Vault",
+      "category": "threat_intel",
+      "badge": "V4 CORE",
+      "endpoint": "/api/breach"
+    },
+    {
+      "id": "dark_watch",
+      "index": 8,
+      "name": "Dark Watch",
+      "category": "threat_intel",
+      "badge": "V3 CORE",
+      "endpoint": "/api/dark/search"
+    },
+    {
+      "id": "hudson_rock",
+      "index": 9,
+      "name": "Hudson Rock Cavalier",
+      "category": "threat_intel",
+      "badge": "V6 INTEL",
+      "endpoint": "/api/hudsonrock"
+    },
+    {
+      "id": "paste_dragnet",
+      "index": 10,
+      "name": "Paste Dragnet",
+      "category": "threat_intel",
+      "badge": "V5 LABS",
+      "endpoint": "/api/paste"
+    },
+    {
+      "id": "ransom_disclose",
+      "index": 11,
+      "name": "Ransom Disclose",
+      "category": "threat_intel",
+      "badge": "VX ELITE",
+      "endpoint": "/api/ransomdisclose"
+    },
+    {
+      "id": "domain_oracle",
+      "index": 12,
+      "name": "Domain Oracle",
+      "category": "infrastructure",
+      "badge": "V5 LABS",
+      "endpoint": "/api/oracle"
+    },
+    {
+      "id": "network_mapper",
+      "index": 13,
+      "name": "Network Mapper",
+      "category": "infrastructure",
+      "badge": "V3 CORE",
+      "endpoint": "/api/network/scan"
+    },
+    {
+      "id": "ssl_sentinel",
+      "index": 14,
+      "name": "SSL Sentinel",
+      "category": "infrastructure",
+      "badge": "V3 CORE",
+      "endpoint": "/api/ssl/scan"
+    },
+    {
+      "id": "mail_tracer",
+      "index": 15,
+      "name": "Mail Tracer",
+      "category": "infrastructure",
+      "badge": "V5 LABS",
+      "endpoint": "/api/mailtracer"
+    },
+    {
+      "id": "shadow_map",
+      "index": 16,
+      "name": "Shadow Map",
+      "category": "infrastructure",
+      "badge": "V4 CORE",
+      "endpoint": "/api/shadowmap"
+    },
+    {
+      "id": "sigint_sweep",
+      "index": 17,
+      "name": "SIGINT Sweep",
+      "category": "infrastructure",
+      "badge": "V4 CORE",
+      "endpoint": "/api/sigint"
+    },
+    {
+      "id": "cam_vector",
+      "index": 18,
+      "name": "Cam Vector",
+      "category": "infrastructure",
+      "badge": "VX ELITE",
+      "endpoint": "/api/camvector"
+    },
+    {
+      "id": "shadow_ai",
+      "index": 19,
+      "name": "Shadow AI & LLM Leak",
+      "category": "infrastructure",
+      "badge": "VX ELITE",
+      "endpoint": "/api/shadowai"
+    },
+    {
+      "id": "telemetry_hunter",
+      "index": 20,
+      "name": "Telemetry Hunter",
+      "category": "infrastructure",
+      "badge": "VX ELITE",
+      "endpoint": "/api/telemetryhunter"
+    },
+    {
+      "id": "crypto_analyzer",
+      "index": 21,
+      "name": "Crypto Analyzer",
+      "category": "financial",
+      "badge": "V3 CORE",
+      "endpoint": "/api/crypto/analyze"
+    },
+    {
+      "id": "chain_tracer",
+      "index": 22,
+      "name": "Chain Tracer",
+      "category": "financial",
+      "badge": "V6 INTEL",
+      "endpoint": "/api/chaintracer"
+    },
+    {
+      "id": "evm_sol_tracer",
+      "index": 23,
+      "name": "EVM & SOL Tracer",
+      "category": "financial",
+      "badge": "VX ELITE",
+      "endpoint": "/api/evmsol"
+    },
+    {
+      "id": "pixel_forge",
+      "index": 24,
+      "name": "Pixel Forge",
+      "category": "media_geo",
+      "badge": "V6 INTEL",
+      "endpoint": "/api/pixelforge/upload"
+    },
+    {
+      "id": "exif_analyzer",
+      "index": 25,
+      "name": "EXIF Analyzer",
+      "category": "media_geo",
+      "badge": "VX HARDENED",
+      "endpoint": "/api/tools/exif"
+    },
+    {
+      "id": "voice_print",
+      "index": 26,
+      "name": "Voice Print",
+      "category": "media_geo",
+      "badge": "V6 INTEL",
+      "endpoint": "/api/voiceprint/upload"
+    },
+    {
+      "id": "doc_autopsy",
+      "index": 27,
+      "name": "Doc Autopsy",
+      "category": "media_geo",
+      "badge": "V6 INTEL",
+      "endpoint": "/api/docautopsy/upload"
+    },
+    {
+      "id": "geoint_spy",
+      "index": 28,
+      "name": "GEOINT Spy",
+      "category": "media_geo",
+      "badge": "V3 CORE",
+      "endpoint": "/api/tools/geoint"
+    },
+    {
+      "id": "flight_radar",
+      "index": 29,
+      "name": "Flight Radar",
+      "category": "media_geo",
+      "badge": "VX HARDENED",
+      "endpoint": "/api/tools/flight"
+    },
+    {
+      "id": "orbital_eye",
+      "index": 30,
+      "name": "Orbital Eye",
+      "category": "media_geo",
+      "badge": "VX ELITE",
+      "endpoint": "/api/orbitaleye"
+    },
+    {
+      "id": "canary_sentinel",
+      "index": 31,
+      "name": "Canary Sentinel",
+      "category": "media_geo",
+      "badge": "VX ELITE",
+      "endpoint": "/api/canary/create"
+    },
+    {
+      "id": "wayback_spectre",
+      "index": 32,
+      "name": "Wayback Spectre",
+      "category": "media_geo",
+      "badge": "V5 LABS",
+      "endpoint": "/api/wayback"
+    },
+    {
+      "id": "spider_crawl",
+      "index": 33,
+      "name": "Spider Crawl",
+      "category": "media_geo",
+      "badge": "V6 INTEL",
+      "endpoint": "/api/spidercrawl"
+    },
+    {
+      "id": "dork_studio",
+      "index": 34,
+      "name": "Dork Studio",
+      "category": "media_geo",
+      "badge": "VX EXPANDED",
+      "endpoint": "/api/tools/dork"
+    },
+    {
+      "id": "reverse_search",
+      "index": 35,
+      "name": "Reverse Image Search",
+      "category": "identity",
+      "badge": "V2 CORE",
+      "endpoint": "/api/search/deep"
+    },
+    {
+      "id": "scanner_core",
+      "index": 36,
+      "name": "Profile Scanner Core",
+      "category": "identity",
+      "badge": "V1 CORE",
+      "endpoint": "/api/scan"
+    },
+    {
+      "id": "dns_intel",
+      "index": 37,
+      "name": "DNS Intelligence",
+      "category": "vx_arsenal",
+      "badge": "VX CORE",
+      "endpoint": "/api/arsenal/dns_intel"
+    },
+    {
+      "id": "cert_transparency",
+      "index": 38,
+      "name": "Certificate Transparency",
+      "category": "vx_arsenal",
+      "badge": "VX PASSIVE",
+      "endpoint": "/api/arsenal/cert_transparency"
+    },
+    {
+      "id": "typosquat_radar",
+      "index": 39,
+      "name": "Typosquat Radar",
+      "category": "vx_arsenal",
+      "badge": "VX BRAND",
+      "endpoint": "/api/arsenal/typosquat_radar"
+    },
+    {
+      "id": "http_audit",
+      "index": 40,
+      "name": "HTTP Security Audit",
+      "category": "vx_arsenal",
+      "badge": "VX HARDENING",
+      "endpoint": "/api/arsenal/http_audit"
+    },
+    {
+      "id": "waf_fingerprint",
+      "index": 41,
+      "name": "WAF & CDN Fingerprint",
+      "category": "vx_arsenal",
+      "badge": "VX ACTIVE",
+      "endpoint": "/api/arsenal/waf_fingerprint"
+    },
+    {
+      "id": "ip_intel",
+      "index": 42,
+      "name": "IP Intelligence",
+      "category": "vx_arsenal",
+      "badge": "VX MULTI",
+      "endpoint": "/api/arsenal/ip_intel"
+    },
+    {
+      "id": "bucket_hunter",
+      "index": 43,
+      "name": "Cloud Bucket Hunter",
+      "category": "vx_arsenal",
+      "badge": "VX CLOUD",
+      "endpoint": "/api/arsenal/bucket_hunter"
+    },
+    {
+      "id": "exposed_files",
+      "index": 44,
+      "name": "Exposed Files Hunter",
+      "category": "vx_arsenal",
+      "badge": "VX EXPOSURE",
+      "endpoint": "/api/arsenal/exposed_files"
+    },
+    {
+      "id": "link_forensics",
+      "index": 45,
+      "name": "Link Forensics",
+      "category": "vx_arsenal",
+      "badge": "VX PHISH",
+      "endpoint": "/api/arsenal/link_forensics"
+    },
+    {
+      "id": "jwt_analyzer",
+      "index": 46,
+      "name": "JWT Analyzer",
+      "category": "vx_arsenal",
+      "badge": "VX LOCAL",
+      "endpoint": "/api/arsenal/jwt_analyzer"
+    },
+    {
+      "id": "password_pwned",
+      "index": 47,
+      "name": "Pwned Password Audit",
+      "category": "vx_arsenal",
+      "badge": "VX K-ANON",
+      "endpoint": "/api/arsenal/password_pwned"
+    },
+    {
+      "id": "gravatar_intel",
+      "index": 48,
+      "name": "Gravatar Surface",
+      "category": "vx_arsenal",
+      "badge": "VX IDENTITY",
+      "endpoint": "/api/arsenal/gravatar_intel"
+    },
+    {
+      "id": "cve_intel",
+      "index": 49,
+      "name": "CVE Intelligence",
+      "category": "vx_arsenal",
+      "badge": "VX KEV+EPSS",
+      "endpoint": "/api/arsenal/cve_intel"
+    },
+    {
+      "id": "ioc_enrich",
+      "index": 50,
+      "name": "IOC Enrichment",
+      "category": "vx_arsenal",
+      "badge": "VX MULTI-FEED",
+      "endpoint": "/api/arsenal/ioc_enrich"
+    },
+    {
+      "id": "vin_decoder",
+      "index": 51,
+      "name": "VIN Provenance",
+      "category": "vx_arsenal",
+      "badge": "VX NHTSA",
+      "endpoint": "/api/arsenal/vin_decoder"
+    },
+    {
+      "id": "bin_lookup",
+      "index": 52,
+      "name": "Card BIN Intelligence",
+      "category": "vx_arsenal",
+      "badge": "VX ISSUER",
+      "endpoint": "/api/arsenal/bin_lookup"
+    },
+    {
+      "id": "bluesky_intel",
+      "index": 53,
+      "name": "Bluesky Intelligence",
+      "category": "vx_arsenal",
+      "badge": "VX AT-PROTO",
+      "endpoint": "/api/arsenal/bluesky_intel"
+    },
+    {
+      "id": "reddit_intel",
+      "index": 54,
+      "name": "Reddit Intelligence",
+      "category": "vx_arsenal",
+      "badge": "VX SOCIAL",
+      "endpoint": "/api/arsenal/reddit_intel"
+    },
+    {
+      "id": "discord_intel",
+      "index": 55,
+      "name": "Discord Invite Intel",
+      "category": "vx_arsenal",
+      "badge": "VX SOCIAL",
+      "endpoint": "/api/arsenal/discord_intel"
+    },
+    {
+      "id": "telegram_intel",
+      "index": 56,
+      "name": "Telegram Intelligence",
+      "category": "vx_arsenal",
+      "badge": "VX SOCIAL",
+      "endpoint": "/api/arsenal/telegram_intel"
+    },
+    {
+      "id": "attack_surface",
+      "index": 57,
+      "name": "Attack Surface Scorecard",
+      "category": "vx_arsenal",
+      "badge": "VX FLAGSHIP",
+      "endpoint": "/api/arsenal/attack_surface"
+    },
+    {
+      "id": "origin_unmasker",
+      "index": 58,
+      "name": "Origin IP Unmasker",
+      "category": "vx_arsenal",
+      "badge": "VX CDN-BYPASS",
+      "endpoint": "/api/arsenal/origin_unmasker"
+    },
+    {
+      "id": "graphql_inspector",
+      "index": 59,
+      "name": "GraphQL Inspector",
+      "category": "appsec",
+      "badge": "VX SCHEMA-RISK",
+      "endpoint": "/api/arsenal/graphql_inspector"
+    },
+    {
+      "id": "supply_chain_audit",
+      "index": 60,
+      "name": "Supply Chain Auditor",
+      "category": "appsec",
+      "badge": "VX NPM+PYPI",
+      "endpoint": "/api/arsenal/supply_chain_audit"
+    }
+  ]
+}
