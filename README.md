@@ -2,11 +2,9 @@
 
 <br/>
 
-# THE BIG BROTHER · VX.1 (SOVEREIGN)
+<img width="2048" height="768" alt="The Big Brother VX_ Classified OSINT Command Center" src="https://github.com/user-attachments/assets/090a87c1-172f-4860-9b8c-e36b635ae2c3" />
+
 <br/>
-<a href="https://thebigbrother.cloud/">
-  <img width="1584" height="672" alt="The Big Brother VX Sovereign" src="https://github.com/user-attachments/assets/98768f61-c5fb-4cfe-a3d1-092c4f7c17e5">
-</a>
 
 **Premium OSINT & Threat-Intelligence Console · 76 Engines · 24-Engine Keyless Arsenal · Unified Intelligence Result Surface**
 
@@ -21,6 +19,10 @@
 </div>
 
 ---
+<a href="https://thebigbrother.cloud/">
+  <img width="1584" height="672" alt="The Big Brother VX Sovereign" src="https://github.com/user-attachments/assets/26176b6c-ef32-473b-95f5-68b2d63e52fd">
+</a>
+
 
 > [!IMPORTANT]
 > ### ⚡ VX.1 IS A GROUND-UP REBRAND AND A 24-ENGINE EXPANSION
