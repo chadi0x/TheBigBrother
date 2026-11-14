@@ -24,6 +24,21 @@
 </a>
 
 
+# 🌐 THE BIG BROTHER — USE IT ONLINE, NO INSTALLATION REQUIRED
+
+> [!IMPORTANT]
+> # 🚀 WANT TO USE THE BIG BROTHER WITHOUT INSTALLING ANYTHING?
+>
+> **You can access The Big Brother directly from your browser. No downloads, no installation, no local setup, and no configuration required.**
+>
+> <h2 align="center">⚡ <a href="https://thebigbrother.cloud/">LAUNCH THE BIG BROTHER ONLINE</a></h2>
+>
+> <p align="center"><strong>🌐 https://thebigbrother.cloud/</strong></p>
+>
+> **Just open the website and start exploring.**
+>
+> ---
+
 > [!IMPORTANT]
 > ### ⚡ VX.1 IS A GROUND-UP REBRAND AND A 24-ENGINE EXPANSION
 >
@@ -33,7 +48,6 @@
 > - **A brand-new VX Arsenal** with **24 keyless, production-grade engines** across DNS/CT, edge security, cloud exposure, token forensics, breach-aware password auditing, CVE/EPSS/KEV correlation, attack-surface scoring, origin unmasking, GraphQL and supply-chain auditing.
 > - **A unified Intelligence Result Surface** — every new engine returns a structured envelope with a risk score, severity-ranked findings, extracted indicators and a navigable data model rendered as premium evidence cards.
 > - **Hardened legacy engines** — SSL Sentinel, EXIF Analyzer, Dork Studio, Sky Radar and Crypto Analyzer were rebuilt with richer logic, safer fallbacks and no silent mock data.
-
 ---
 
 ## ⟦ OVERVIEW ⟧
