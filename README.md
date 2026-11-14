@@ -377,10 +377,10 @@ For specialized operations requiring private databases, custom satellite scraper
 - 👁️ **TheBigBrother God-EYE Enterprise** · Private breach index · real-time SSN/DOB records · zero-key carrier lookups
 - 🐦 **X GodMode** · Twitter/X algorithmic automation & sentiment engineering
 - 🎵 **Amplifior** · Autonomous multi-channel social media automation
-- 🎣 **Psychopath** · Conversational AI adversary emulation & red-team campaign framework
+- 🎣 **Psychopath** · Conversational AI adversary emulation & red-team campaign framework · **NOW OPEN SOURCE & FREE!** 🚀 [Explore on GitHub](https://github.com/chadi0x/Psychopath) · Clone it, explore it, and enjoy.
 - 🛠️ **Custom Builds** · Tailored intelligence frameworks and military OSINT platforms on request
 
-<div align="center">
+
 
 **[▸ CONTACT ARCHITECT · Telegram @hisoka0morow](https://t.me/hisoka0morow)**
 
