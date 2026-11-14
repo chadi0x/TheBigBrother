@@ -24,7 +24,6 @@
 </a>
 
 
-# 🌐 THE BIG BROTHER — USE IT ONLINE, NO INSTALLATION REQUIRED
 
 > [!IMPORTANT]
 > # 🚀 WANT TO USE THE BIG BROTHER WITHOUT INSTALLING ANYTHING?
@@ -33,7 +32,6 @@
 >
 > <h2 align="center">⚡ <a href="https://thebigbrother.cloud/">LAUNCH THE BIG BROTHER ONLINE</a></h2>
 >
-> <p align="center"><strong>🌐 https://thebigbrother.cloud/</strong></p>
 >
 > **Just open the website and start exploring.**
 >
